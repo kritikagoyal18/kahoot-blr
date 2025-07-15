@@ -1,5 +1,5 @@
 mountpoints:
   /:
-    url: "https://author-p153659-e1620914.adobeaemcloud.com/bin/franklin.delivery/AEMXSC/wknd/main"
+    url: "https://author-p102636-e1547569.adobeaemcloud.com/bin/franklin.delivery/kritikagoyal18/kahoot-blr/main"
     type: "markup"
     suffix: ".html"
