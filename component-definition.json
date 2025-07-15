@@ -31,6 +31,20 @@
           }
         },
         {
+          "title": "Quiz Builder",
+          "id": "quiz-builder",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/title/v1/title",
+                "template": {
+                  "model": "quiz-builder"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Image",
           "id": "image",
           "plugins": {
