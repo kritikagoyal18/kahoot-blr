@@ -31,6 +31,20 @@
           }
         },
         {
+          "title": "Add Question",
+          "id": "add-question",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/title/v1/title",
+                "template": {
+                  "model": "add-question"
+                }
+              }
+            }
+          }
+        },
+        {
           "title": "Image",
           "id": "image",
           "plugins": {
