@@ -28,13 +28,13 @@ function addNewQuestion() {
 		updateQuestionCount();
 		
 		// Scroll to the new question form
-		const newForm = document.getElementById(\`question-\${question.id}\`);
+		const newForm = document.getElementById(`question-${question.id}`);
 		newForm.scrollIntoView({ behavior: 'smooth' });
 }
 
 function renderQuestionForm(question) {
 		const formsContainer = document.getElementById('questionForms');
-		const formHtml = \'
+		const formHtml = `
 				<div class="question-form" id="question-\${question.id}">
 						<h3>Question \${question.id}</h3>
 						
@@ -73,42 +73,42 @@ function renderQuestionForm(question) {
 								</div>
 								
 								<div class="options-list" id="options-\${question.id}">
-										\${question.options.map((option, index) => \`
+										${question.options.map((option, index) => `
 												<div class="option-item">
 														<input 
 																type="checkbox" 
 																class="option-checkbox" 
-																id="correct-\${question.id}-\${index}"
-																\${question.correctAnswers.includes(index) ? 'checked' : ''}
-																onchange="toggleCorrectAnswer(\${question.id}, \${index}, this.checked)"
+																id="correct-${question.id}-${index}"
+																${question.correctAnswers.includes(index) ? 'checked' : ''}
+																onchange="toggleCorrectAnswer(${question.id}, ${index}, this.checked)"
 														>
 														<input 
 																type="text" 
 																class="option-input" 
-																placeholder="Option \${index + 1}"
-																value="\${option}"
-																onchange="updateOption(\${question.id}, \${index}, this.value)"
+																placeholder="Option ${index + 1}"
+																value="${option}"
+																onchange="updateOption(${question.id}, ${index}, this.value)"
 														>
-														\${question.options.length > 2 ? \`
-																<button class="btn-remove-option" onclick="removeOption(\${question.id}, \${index})">
+														${question.options.length > 2 ? `
+																<button class="btn-remove-option" onclick="removeOption(${question.id}, ${index})">
 																		<i class="fas fa-trash"></i>
 																</button>
-														\` : ''}
+														` : ''}
 												</div>
-										\`).join('')}
+										`).join('')}
 								</div>
 						</div>
 
 						<div class="form-actions">
-								<button class="btn-secondary" onclick="deleteQuestion(\${question.id})">
+								<button class="btn-secondary" onclick="deleteQuestion(${question.id})">
 										<i class="fas fa-trash"></i> Delete Question
 								</button>
-								<button class="btn-success" onclick="saveQuestion(\${question.id})">
+								<button class="btn-success" onclick="saveQuestion(${question.id})">
 										<i class="fas fa-save"></i> Save Question
 								</button>
 						</div>
 				</div>
-		\';
+		`;
 		
 		formsContainer.insertAdjacentHTML('beforeend', formHtml);
 }
@@ -172,7 +172,7 @@ function removeOption(questionId, optionIndex) {
 function reRenderQuestionForm(questionId) {
 		const question = questions.find(q => q.id === questionId);
 		if (question) {
-				const formElement = document.getElementById(\`question-\${questionId}\`);
+				const formElement = document.getElementById(`question-${questionId}`);
 				if (formElement) {
 						formElement.remove();
 						renderQuestionForm(question);
@@ -184,7 +184,7 @@ function reRenderQuestionForm(questionId) {
 function deleteQuestion(id) {
 		if (confirm('Are you sure you want to delete this question?')) {
 				questions = questions.filter(q => q.id !== id);
-				const formElement = document.getElementById(\`question-\${id}\`);
+				const formElement = document.getElementById(`question-${id}`);
 				if (formElement) {
 						formElement.remove();
 				}
@@ -223,31 +223,31 @@ function updateQuestionsList() {
 		const questionsList = document.getElementById('questionsList');
 		
 		if (questions.length === 0) {
-				questionsList.innerHTML = \`
+				questionsList.innerHTML = `
 						<div class="empty-state">
 								<h3>No Questions Yet</h3>
 								<p>Start by adding your first question using the "Add Question" button.</p>
 						</div>
-				\`;
+				`;
 				return;
 		}
 		
-		questionsList.innerHTML = questions.map((question, index) => \`
-				<div class="question-item" data-id="\${question.id}" draggable="true">
+		questionsList.innerHTML = questions.map((question, index) => `
+				<div class="question-item" data-id="${question.id}" draggable="true">
 						<div class="drag-handle">⋮⋮</div>
-						<div class="question-number">Question \${index + 1}</div>
-						<div class="question-preview">\${question.question || 'No question text'}</div>
+						<div class="question-number">Question ${index + 1}</div>
+						<div class="question-preview">${question.question || 'No question text'}</div>
 						<div class="question-actions">
-								<button class="btn-small btn-edit" onclick="editQuestion(\${question.id})">Edit</button>
-								<button class="btn-small btn-delete" onclick="deleteQuestion(\${question.id})">Delete</button>
+								<button class="btn-small btn-edit" onclick="editQuestion(${question.id})">Edit</button>
+								<button class="btn-small btn-delete" onclick="deleteQuestion(${question.id})">Delete</button>
 						</div>
 				</div>
-		\`).join('');
+		`).join('');
 }
 
 // Edit question (scroll to form)
 function editQuestion(id) {
-		const formElement = document.getElementById(\`question-\${id}\`);
+		const formElement = document.getElementById(`question-${id}`);
 		if (formElement) {
 				formElement.scrollIntoView({ behavior: 'smooth' });
 				formElement.style.borderColor = '#667eea';
@@ -354,7 +354,7 @@ function exportQuestions() {
 		};
 		
 		console.log('Export Data:', exportData);
-		alert(\`Successfully exported \${validQuestions.length} questions! Check console for data.\`);
+		alert(`Successfully exported ${validQuestions.length} questions! Check console for data.`);
 }
 
 // Add export button to header
@@ -373,51 +373,33 @@ document.addEventListener('DOMContentLoaded', function() {
  * @param {Element} block
  */
 export default async function decorate(block) {
-        block.innerHTML = `// Complete Question Authoring Portal as inline HTML
-const questionAuthoringPortalHTML = `
-    <div class="container">
-        <!-- Left Sidebar - Questions List -->
-        <div class="questions-sidebar">
-            <div class="sidebar-header">
-                <h2>Questions</h2>
-                <span class="question-count" id="questionCount">0</span>
-            </div>
-            <div class="questions-list" id="questionsList">
-                <div class="empty-state">
-                    <h3>No Questions Yet</h3>
-                    <p>Start by adding your first question using the "Add Question" button.</p>
-                </div>
-            </div>
-        </div>
+        block.innerHTML = `
+			<div class="container">
+				<div class="questions-sidebar">
+					<div class="sidebar-header">
+						<h2>Questions</h2>
+						<span class="question-count" id="questionCount">0</span>
+					</div>
+					<div class="questions-list" id="questionsList">
+						<div class="empty-state">
+							<h3>No Questions Yet</h3>
+							<p>Start by adding your first question using the "Add Question" button.</p>
+						</div>
+					</div>
+				</div>
 
-        <!-- Main Content Area -->
-        <div class="main-content">
-            <div class="content-header">
-                <h1>Question Authoring Portal</h1>
-                <button class="btn-primary" onclick="addNewQuestion()">
-                    <i class="fas fa-plus"></i> Add Question
-                </button>
-            </div>
+				<div class="main-content">
+					<div class="content-header">
+						<h1>Question Authoring Portal</h1>
+						<button class="btn-primary" onclick="addNewQuestion()">
+							<i class="fas fa-plus"></i> Add Question
+						</button>
+					</div>
 
-            <div id="questionForms">
-                <!-- Question forms will be dynamically added here -->
-            </div>
-        </div>
-    </div>
-`;
-
-		// Usage example:
-		block.innerHTML = questionAuthoringPortalHTML;`;
-        
-    
-      } catch (error) {
-        console.error('Error rendering content fragment:', {
-          error: error.message,
-          stack: error.stack,
-          contentPath,
-          variationname,
-          isAuthor
-        });
-        block.innerHTML = '';
-      }
+					<div id="questionForms">
+						<!-- Question forms will be dynamically added here -->
+					</div>
+				</div>
+			</div>
+		`;        
 }
