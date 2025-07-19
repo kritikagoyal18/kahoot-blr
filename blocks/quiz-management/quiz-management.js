@@ -262,7 +262,8 @@ export default function decorate(block) {
   // Event listeners
   createButton.addEventListener('click', () => {
     console.log('Create new quiz clicked');
-    // TODO: Navigate to quiz creation form
+    // Redirect to the quiz creation page
+    window.location.href = 'https://author-p102636-e1547569.adobeaemcloud.com/content/kahoot-blr/language-masters/en.html';
   });
 
   searchInput.addEventListener('input', (e) => {
