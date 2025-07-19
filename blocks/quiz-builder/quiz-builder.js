@@ -321,53 +321,54 @@ function initializeQuizBuilder() {
  * @param {Element} block
  */
 export default async function decorate(block) {
-    try {
-        const questionAuthoringPortalHTML = `
-            <div class="container">
-                <!-- Left Sidebar - Questions List -->
-                <div class="questions-sidebar">
-                    <div class="sidebar-header">
-                        <h2>Questions</h2>
-                        <span class="question-count" id="questionCount">0</span>
-                    </div>
-                    <div class="questions-list" id="questionsList">
-                        <div class="empty-state">
-                            <h3>No Questions Yet</h3>
-                            <p>Start by adding your first question using the "Add Question" button.</p>
-                        </div>
-                    </div>
-                </div>
+    console.log('quiz-builder');
+    // try {
+    //     const questionAuthoringPortalHTML = `
+    //         <div class="container">
+    //             <!-- Left Sidebar - Questions List -->
+    //             <div class="questions-sidebar">
+    //                 <div class="sidebar-header">
+    //                     <h2>Questions</h2>
+    //                     <span class="question-count" id="questionCount">0</span>
+    //                 </div>
+    //                 <div class="questions-list" id="questionsList">
+    //                     <div class="empty-state">
+    //                         <h3>No Questions Yet</h3>
+    //                         <p>Start by adding your first question using the "Add Question" button.</p>
+    //                     </div>
+    //                 </div>
+    //             </div>
 
-                <!-- Main Content Area -->
-                <div class="main-content">
-                    <div class="content-header">
-                        <h1>Question Authoring Portal</h1>
-                        <button class="btn-primary" onclick="addNewQuestion()">
-                            <i class="fas fa-plus"></i> Add Question
-                        </button>
-                    </div>
+    //             <!-- Main Content Area -->
+    //             <div class="main-content">
+    //                 <div class="content-header">
+    //                     <h1>Question Authoring Portal</h1>
+    //                     <button class="btn-primary" onclick="addNewQuestion()">
+    //                         <i class="fas fa-plus"></i> Add Question
+    //                     </button>
+    //                 </div>
 
-                    <div id="questionForms">
-                        <!-- Question forms will be dynamically added here -->
-                    </div>
-                </div>
-            </div>
-        `;
+    //                 <div id="questionForms">
+    //                     <!-- Question forms will be dynamically added here -->
+    //                 </div>
+    //             </div>
+    //         </div>
+    //     `;
 
-        block.innerHTML = questionAuthoringPortalHTML;
+    //     block.innerHTML = questionAuthoringPortalHTML;
         
-        // Initialize after DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeQuizBuilder);
-        } else {
-            initializeQuizBuilder();
-        }
+    //     // Initialize after DOM is ready
+    //     if (document.readyState === 'loading') {
+    //         document.addEventListener('DOMContentLoaded', initializeQuizBuilder);
+    //     } else {
+    //         initializeQuizBuilder();
+    //     }
         
-    } catch (error) {
-        console.error('Error rendering quiz builder:', {
-            error: error.message,
-            stack: error.stack
-        });
-        block.innerHTML = '<p>Error loading quiz builder</p>';
-    }
+    // } catch (error) {
+    //     console.error('Error rendering quiz builder:', {
+    //         error: error.message,
+    //         stack: error.stack
+    //     });
+    //     block.innerHTML = '<p>Error loading quiz builder</p>';
+    // }
 }
