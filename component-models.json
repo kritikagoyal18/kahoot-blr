@@ -130,6 +130,18 @@
     ]
   },
   {
+    "id": "add-question",
+    "fields": [
+      {
+        "component": "richtext",
+        "name": "text",
+        "value": "",
+        "label": "Text",
+        "valueType": "string"
+      }
+    ]
+  },
+  {
     "id": "title",
     "fields": [
       {
