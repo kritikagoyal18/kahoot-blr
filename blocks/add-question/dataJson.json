@@ -1,0 +1,20 @@
+{
+  "gameId": "123",
+  "users": [
+    {
+      "userId": "123",
+      "score": 0,
+      "displayName": "John Doe"
+    }
+  ],
+  "questions": [
+    {
+      "questionId": "123",
+      "questionType": "single-choice",
+      "questionText": "What is the capital of France?",
+      "options": ["Paris", "London", "Berlin", "Madrid"],
+      "correctAnswer": "Paris",
+      "timeLimit": 30
+    }
+  ]
+}

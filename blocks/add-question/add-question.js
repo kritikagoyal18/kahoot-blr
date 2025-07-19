@@ -35,6 +35,11 @@ export default function decorate(block) {
   submitContainer.appendChild(submitButton);
   block.appendChild(submitContainer);
 
+  // Helper function to generate random ID
+  function generateRandomId() {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+
   // Helper function to create option fields
   function createOptionField(questionIndex, optionIndex, value = '') {
     const optionDiv = document.createElement('div');
@@ -342,12 +347,45 @@ export default function decorate(block) {
       return;
     }
     
-    // All validations passed - submit the questions
-    console.log('Questions submitted:', questions);
-    alert(`Successfully submitted ${questions.length} questions!`);
+    // Generate the JSON structure for database
+    const gameId = generateRandomId();
+    const formattedQuestions = questions.map((question, index) => {
+      let correctAnswer = [];
+      
+      if (question.type === 'true-false') {
+        // For true/false, map indices to actual values
+        correctAnswer = question.correctAnswers.map(answerIndex => 
+          question.options[answerIndex]
+        );
+      } else {
+        // For choice questions, get the actual option text
+        correctAnswer = question.correctAnswers.map(answerIndex => 
+          question.options[answerIndex]
+        );
+      }
+      
+      return {
+        questionId: (index + 1).toString(),
+        questionType: question.type,
+        questionText: question.text.trim(),
+        options: question.options.map(opt => opt.trim()),
+        correctAnswer: correctAnswer,
+        timeLimit: question.timeLimit
+      };
+    });
+    
+    const jsonData = {
+      gameId: gameId,
+      users: [],
+      questions: formattedQuestions
+    };
+    
+    // Log the JSON to console
+    console.log('Questions submitted:', jsonData);
+    alert(`Successfully submitted ${questions.length} questions! Check console for JSON data.`);
     
     // Here you can add logic to send the questions to your backend
-    // For example: submitQuestions(questions);
+    // For example: submitQuestions(jsonData);
   });
 
   // Initial render (no panels)
