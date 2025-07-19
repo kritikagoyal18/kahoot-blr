@@ -88,7 +88,7 @@ export default function decorate(block) {
             .filter(answerIndex => answerIndex !== optionIndex)
             .map(answerIndex => answerIndex > optionIndex ? answerIndex - 1 : answerIndex);
         }
-        renderQuestionPanel(questionIndex);
+        renderAllPanels();
       }
     });
     
@@ -179,7 +179,7 @@ export default function decorate(block) {
       addOptionBtn.className = 'add-option-btn';
       addOptionBtn.addEventListener('click', () => {
         questions[questionIndex].options.push('');
-        renderQuestionPanel(questionIndex);
+        renderAllPanels();
       });
       
       container.appendChild(optionsContainer);
