@@ -161,7 +161,7 @@
 /* Option Field */
 .option-field {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
   background: rgba(255,255,255,0.9);
   padding: 12px 15px;
@@ -173,6 +173,29 @@
 .option-field:hover {
   background: white;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Correct Answer Checkbox */
+.correct-answer-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #43e97b;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.correct-answer-checkbox:checked {
+  background-color: #43e97b;
+  border-color: #43e97b;
+  box-shadow: 0 0 0 3px rgba(67, 233, 123, 0.2);
+}
+
+.correct-answer-checkbox:hover {
+  border-color: #43e97b;
+  box-shadow: 0 0 0 3px rgba(67, 233, 123, 0.1);
 }
 
 .option-input {
@@ -191,30 +214,31 @@
   color: #999;
 }
 
-/* Radio Buttons for True/False */
-.type-specific-field label {
+/* True/False Options */
+.true-false-option {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  background: rgba(255,255,255,0.2);
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.true-false-option:hover {
+  background: rgba(255,255,255,0.3);
+  transform: translateX(5px);
+}
+
+.true-false-label {
   color: white;
   font-weight: 600;
   font-size: 1.1rem;
   cursor: pointer;
-  padding: 10px 15px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 8px;
-  margin-right: 15px;
-  transition: all 0.3s ease;
-}
-
-.type-specific-field label:hover {
-  background: rgba(255,255,255,0.3);
-}
-
-.type-specific-field input[type="radio"] {
-  width: 18px;
-  height: 18px;
-  accent-color: #2c3e50;
+  margin: 0;
+  flex: 1;
 }
 
 /* Time Container */
@@ -358,9 +382,16 @@
     width: 100%;
   }
   
-  .type-specific-field label {
-    margin-bottom: 10px;
-    display: block;
+  .true-false-option {
+    margin-bottom: 8px;
+  }
+  
+  .option-field {
+    flex-wrap: wrap;
+  }
+  
+  .correct-answer-checkbox {
+    order: -1;
   }
 }
 
