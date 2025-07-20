@@ -1,10 +1,5 @@
 import { getMetadata } from '../../scripts/aem.js';
 
-import {
-  getLanguage, getSiteName, TAG_ROOT, PATH_PREFIX, fetchLanguageNavigation,
-} from '../../scripts/utils.js';
-
-
 function renderGameEditor(mainContainer) {
   mainContainer.innerHTML = '';
   
