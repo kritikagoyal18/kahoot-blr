@@ -1,3 +1,4 @@
+/*
 function renderGameEditor(mainContainer) {
   mainContainer.innerHTML = '';
   
@@ -473,6 +474,8 @@ async function saveGame() {
     alert('Error saving game');
   }
 }   
+*/
+
 
 /**
 * loads and decorates the header, mainly the nav
