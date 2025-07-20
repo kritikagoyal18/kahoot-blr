@@ -476,7 +476,12 @@ async function saveGame() {
 
 
 
-export default function decorate(block) {
+/**
+ * loads and decorates the header, mainly the nav
+ * @param {Element} block The header block element
+ */
+export default async function decorate(block) {
+
     
   
   const quizmanagementContainer = block.querySelectorAll('.quiz-management')[0];
