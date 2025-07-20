@@ -1,4 +1,3 @@
-// Game Editor View
 function renderGameEditor(mainContainer) {
   mainContainer.innerHTML = '';
   
