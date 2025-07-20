@@ -126,7 +126,7 @@ function renderDashboard() {
   
   // Create main heading
   const heading = document.createElement('h2');
-  heading.textContent = 'Kahoot-style Admin Interface';
+  heading.textContent = 'Quiz Admin';
   heading.className = 'admin-heading';
   mainContainer.appendChild(heading);
 
