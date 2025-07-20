@@ -1,4 +1,351 @@
-/*
+// State management
+let currentView = 'dashboard';
+let currentGame = null;
+let games = [];
+let filteredGames = [];
+let mainContainer = null;
+
+// Mock data for games
+const mockGames = [
+  {
+    id: "game_001",
+    title: "Mathematics Basics",
+    description: "Fundamental mathematics concepts including algebra, geometry, and arithmetic",
+    tags: ["math", "education"],
+    status: "published",
+    startDate: "2024-01-15",
+    endDate: "2024-12-31",
+    questions: [
+      {
+        id: "q1",
+        type: "multiple-choice",
+        text: "What is 2 + 2?",
+        options: ["3", "4", "5", "6"],
+        correctAnswers: [1],
+        timeLimit: 30,
+        order: 1
+      }
+    ],
+    createdAt: "2024-01-15",
+    lastModified: "2024-01-20"
+  },
+  {
+    id: "game_002", 
+    title: "Science Quiz",
+    description: "General science questions covering physics, chemistry, and biology",
+    tags: ["science", "education"],
+    status: "draft",
+    startDate: "2024-02-01",
+    endDate: "2024-12-31",
+    questions: [],
+    createdAt: "2024-01-18",
+    lastModified: "2024-01-19"
+  }
+];
+
+// Initialize games
+games = [...mockGames];
+filteredGames = [...games];
+
+// API Integration Hooks
+const API = {
+  async getGames() {
+    console.log('GET /games');
+    return games;
+  },
+  
+  async createGame(gameData) {
+    console.log('POST /game', gameData);
+    const newGame = {
+      ...gameData,
+      id: `game_${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      lastModified: new Date().toISOString()
+    };
+    games.push(newGame);
+    return newGame;
+  },
+  
+  async updateGame(id, gameData) {
+    console.log('PUT /game/:id', { id, gameData });
+    const index = games.findIndex(game => game.id === id);
+    if (index !== -1) {
+      games[index] = { ...games[index], ...gameData, lastModified: new Date().toISOString() };
+      return games[index];
+    }
+    throw new Error('Game not found');
+  },
+  
+  async deleteGame(id) {
+    console.log('DELETE /game/:id', id);
+    const index = games.findIndex(game => game.id === id);
+    if (index !== -1) {
+      games.splice(index, 1);
+      return true;
+    }
+    throw new Error('Game not found');
+  },
+  
+  async publishGame(id, publish) {
+    console.log('PATCH /game/:id/publish', { id, publish });
+    const game = games.find(g => g.id === id);
+    if (game) {
+      game.status = publish ? 'published' : 'draft';
+      game.lastModified = new Date().toISOString();
+      return game;
+    }
+    throw new Error('Game not found');
+  }
+};
+
+// Helper functions
+function generateRandomId() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
+function getStatusColor(status) {
+  switch(status) {
+    case 'published': return '#43e97b';
+    case 'draft': return '#4facfe';
+    case 'archived': return '#fa709a';
+    default: return '#999';
+  }
+}
+
+function getStatusLabel(status) {
+  switch(status) {
+    case 'published': return 'Published';
+    case 'draft': return 'Draft';
+    case 'archived': return 'Archived';
+    default: return 'Unknown';
+  }
+}
+
+// Dashboard View
+function renderDashboard() {
+  mainContainer.innerHTML = '';
+  
+  // Create main heading
+  const heading = document.createElement('h2');
+  heading.textContent = 'Kahoot-style Admin Interface';
+  heading.className = 'admin-heading';
+  mainContainer.appendChild(heading);
+
+  // Create header section with controls
+  const headerSection = document.createElement('div');
+  headerSection.className = 'admin-header-section';
+  
+  // Create New Game button
+  const createButton = document.createElement('button');
+  createButton.type = 'button';
+  createButton.textContent = 'Create New Game';
+  createButton.className = 'create-game-btn';
+  createButton.addEventListener('click', () => {
+    currentGame = null;
+    renderGameEditor(mainContainer);
+  });
+  headerSection.appendChild(createButton);
+  
+  // Search input
+  const searchContainer = document.createElement('div');
+  searchContainer.className = 'search-container';
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.placeholder = 'Search games...';
+  searchInput.className = 'search-input';
+  searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    filteredGames = games.filter(game => 
+      game.title.toLowerCase().includes(searchTerm) ||
+      game.description.toLowerCase().includes(searchTerm) ||
+      game.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+    );
+    renderGameCards();
+  });
+  searchContainer.appendChild(searchInput);
+  headerSection.appendChild(searchContainer);
+  
+  // Status filter
+  const filterContainer = document.createElement('div');
+  filterContainer.className = 'filter-container';
+  const filterSelect = document.createElement('select');
+  filterSelect.className = 'status-filter';
+  const filterOptions = [
+    { value: 'all', label: 'All Status' },
+    { value: 'published', label: 'Published' },
+    { value: 'draft', label: 'Draft' },
+    { value: 'archived', label: 'Archived' }
+  ];
+  filterOptions.forEach(option => {
+    const optionElement = document.createElement('option');
+    optionElement.value = option.value;
+    optionElement.textContent = option.label;
+    filterSelect.appendChild(optionElement);
+  });
+  filterSelect.addEventListener('change', (e) => {
+    const selectedStatus = e.target.value;
+    if (selectedStatus === 'all') {
+      filteredGames = [...games];
+    } else {
+      filteredGames = games.filter(game => game.status === selectedStatus);
+    }
+    renderGameCards();
+  });
+  filterContainer.appendChild(filterSelect);
+  headerSection.appendChild(filterContainer);
+  
+  mainContainer.appendChild(headerSection);
+
+  // Create game cards container
+  const cardsContainer = document.createElement('div');
+  cardsContainer.className = 'game-cards-container';
+  mainContainer.appendChild(cardsContainer);
+
+  // Helper function to create a game card
+  function createGameCard(game) {
+    const card = document.createElement('div');
+    card.className = 'game-card';
+    card.dataset.gameId = game.id;
+    
+    // Card header
+    const cardHeader = document.createElement('div');
+    cardHeader.className = 'game-card-header';
+    
+    const title = document.createElement('h3');
+    title.textContent = game.title;
+    title.className = 'game-card-title';
+    cardHeader.appendChild(title);
+    
+    const status = document.createElement('span');
+    status.textContent = getStatusLabel(game.status);
+    status.className = 'game-status';
+    status.style.backgroundColor = getStatusColor(game.status);
+    cardHeader.appendChild(status);
+    
+    card.appendChild(cardHeader);
+    
+    // Card content
+    const cardContent = document.createElement('div');
+    cardContent.className = 'game-card-content';
+    
+    const description = document.createElement('p');
+    description.textContent = game.description;
+    description.className = 'game-description';
+    cardContent.appendChild(description);
+    
+    const tags = document.createElement('div');
+    tags.className = 'game-tags';
+    game.tags.forEach(tag => {
+      const tagSpan = document.createElement('span');
+      tagSpan.textContent = tag;
+      tagSpan.className = 'tag';
+      tags.appendChild(tagSpan);
+    });
+    cardContent.appendChild(tags);
+    
+    const stats = document.createElement('div');
+    stats.className = 'game-stats';
+    
+    const questionCount = document.createElement('span');
+    questionCount.textContent = `${game.questions.length} questions`;
+    questionCount.className = 'question-count';
+    stats.appendChild(questionCount);
+    
+    const dateRange = document.createElement('span');
+    dateRange.textContent = `${new Date(game.startDate).toLocaleDateString()} - ${new Date(game.endDate).toLocaleDateString()}`;
+    dateRange.className = 'date-range';
+    stats.appendChild(dateRange);
+    
+    cardContent.appendChild(stats);
+    card.appendChild(cardContent);
+    
+    // Card actions
+    const cardActions = document.createElement('div');
+    cardActions.className = 'game-card-actions';
+    
+    // Edit button
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.textContent = 'Edit';
+    editBtn.className = 'edit-game-btn';
+    editBtn.addEventListener('click', () => {
+      currentGame = game;
+      renderGameEditor(mainContainer);
+    });
+    cardActions.appendChild(editBtn);
+    
+    // Publish/Unpublish button
+    const publishBtn = document.createElement('button');
+    publishBtn.type = 'button';
+    publishBtn.textContent = game.status === 'published' ? 'Unpublish' : 'Publish';
+    publishBtn.className = game.status === 'published' ? 'unpublish-game-btn' : 'publish-game-btn';
+    publishBtn.addEventListener('click', async () => {
+      try {
+        await API.publishGame(game.id, game.status !== 'published');
+        renderDashboard();
+      } catch (error) {
+        console.error('Error publishing game:', error);
+        alert('Error publishing game');
+      }
+    });
+    cardActions.appendChild(publishBtn);
+    
+    // Delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.className = 'delete-game-btn';
+    deleteBtn.addEventListener('click', async () => {
+      if (confirm(`Are you sure you want to delete "${game.title}"?`)) {
+        try {
+          await API.deleteGame(game.id);
+          renderDashboard();
+        } catch (error) {
+          console.error('Error deleting game:', error);
+          alert('Error deleting game');
+        }
+      }
+    });
+    cardActions.appendChild(deleteBtn);
+    
+    // View Dashboard button
+    const dashboardBtn = document.createElement('button');
+    dashboardBtn.type = 'button';
+    dashboardBtn.textContent = 'View Dashboard';
+    dashboardBtn.className = 'view-dashboard-btn';
+    dashboardBtn.addEventListener('click', () => {
+      console.log('View dashboard for game:', game.id);
+    });
+    cardActions.appendChild(dashboardBtn);
+    
+    card.appendChild(cardActions);
+    
+    return card;
+  }
+
+  // Helper function to render game cards
+  function renderGameCards() {
+    cardsContainer.innerHTML = '';
+    
+    if (filteredGames.length === 0) {
+      const noGames = document.createElement('div');
+      noGames.className = 'no-games';
+      noGames.textContent = 'No games found. Create your first game!';
+      cardsContainer.appendChild(noGames);
+      return;
+    }
+    
+    filteredGames.forEach(game => {
+      const card = createGameCard(game);
+      cardsContainer.appendChild(card);
+    });
+  }
+
+  // Initial render
+  renderGameCards();
+}
+
+// Game Editor View
 function renderGameEditor(mainContainer) {
   mainContainer.innerHTML = '';
   
@@ -473,50 +820,27 @@ async function saveGame() {
     console.error('Error saving game:', error);
     alert('Error saving game');
   }
-}   
-*/
+}
 
 
-/**
-* loads and decorates the header, mainly the nav
-* @param {Element} block The header block element
-*/
-export default async function decorate(block) {
-  //const quizmanagementContainer = block.querySelectorAll('.quiz-management')[0];
-  block.innerHTML = '';
-  //renderGameEditor(block);
+
+export default function decorate(block) {
+  console.log("Kahoot-style Admin Interface loaded");
   
-  block.innerHTML = `
-  <div class="test-container">
-        <div class="test-header">
-            <h1>Kahoot-style Admin Interface Demo</h1>
-            <p>A comprehensive admin interface for creating, editing, and managing interactive quiz games</p>
-        </div>
-        
-        <div class="test-description">
-            <h3>Features Implemented:</h3>
-            <ul>
-                <li><strong>Dashboard View:</strong> List all games with search, filter, and action buttons</li>
-                <li><strong>Game Editor:</strong> Create and edit games with all required fields</li>
-                <li><strong>Question Management:</strong> Add, edit, delete questions with multiple question types</li>
-                <li><strong>API Integration:</strong> Ready hooks for backend integration</li>
-                <li><strong>Responsive Design:</strong> Works on all device sizes</li>
-                <li><strong>AEM EDS Compliance:</strong> Follows Adobe Experience Manager patterns</li>
-            </ul>
-            
-            <h3>API Endpoints Ready:</h3>
-            <ul>
-                <li>GET /games - List all games</li>
-                <li>POST /game - Create new game</li>
-                <li>PUT /game/:id - Update game</li>
-                <li>DELETE /game/:id - Delete game</li>
-                <li>PATCH /game/:id/publish - Publish/unpublish game</li>
-                <li>POST /game/:id/question - Add question</li>
-                <li>PUT /game/:id/question/:questionId - Update question</li>
-                <li>DELETE /game/:id/question/:questionId - Delete question</li>
-            </ul>
-        </div>
-        
-        <div class="quiz-management"></div>
-  </div>`;
+  // Initialize main container
+  mainContainer = block;
+  
+  // Clear the block and create the main container
+  block.innerHTML = '';
+  
+  // Create main container wrapper
+  const containerWrapper = document.createElement('div');
+  containerWrapper.className = 'kahoot-admin-container';
+  block.appendChild(containerWrapper);
+  
+  // Set mainContainer to the wrapper
+  mainContainer = containerWrapper;
+  
+  // Initialize with dashboard view
+  renderDashboard();
 }
