@@ -142,7 +142,7 @@
     ]
   },
   {
-    "id": "admin-quiz-management",
+    "id": "admin-quiz-portal",
     "fields": [
       {
         "component": "richtext",
