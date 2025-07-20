@@ -1,5 +1,10 @@
-import { getMetadata } from '../../scripts/aem.js';
+/**
+ * loads and decorates the header, mainly the nav
+ * @param {Element} block The header block element
+ */
+export default async function decorate(block) {
 
+  
 function renderGameEditor(mainContainer) {
   mainContainer.innerHTML = '';
   
@@ -474,17 +479,7 @@ async function saveGame() {
     console.error('Error saving game:', error);
     alert('Error saving game');
   }
-}
-
-
-
-/**
- * loads and decorates the header, mainly the nav
- * @param {Element} block The header block element
- */
-export default async function decorate(block) {
-
-    
+}   
   
   const quizmanagementContainer = block.querySelectorAll('.quiz-management')[0];
   block.innerHTML = '';
