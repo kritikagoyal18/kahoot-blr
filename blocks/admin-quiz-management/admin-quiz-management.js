@@ -1,10 +1,3 @@
-/**
- * loads and decorates the header, mainly the nav
- * @param {Element} block The header block element
- */
-export default async function decorate(block) {
-
-  
 function renderGameEditor(mainContainer) {
   mainContainer.innerHTML = '';
   
@@ -480,11 +473,16 @@ async function saveGame() {
     alert('Error saving game');
   }
 }   
-  
-  const quizmanagementContainer = block.querySelectorAll('.quiz-management')[0];
+
+/**
+* loads and decorates the header, mainly the nav
+* @param {Element} block The header block element
+*/
+export default async function decorate(block) {
+  //const quizmanagementContainer = block.querySelectorAll('.quiz-management')[0];
   block.innerHTML = '';
-  renderGameEditor(block);
-  /*
+  //renderGameEditor(block);
+  
   block.innerHTML = `
   <div class="test-container">
         <div class="test-header">
@@ -518,7 +516,4 @@ async function saveGame() {
         
         <div class="quiz-management"></div>
   </div>`;
-  */
-
-    
 }
