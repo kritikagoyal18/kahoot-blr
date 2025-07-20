@@ -5,7 +5,6 @@ let games = [];
 let filteredGames = [];
 let mainContainer = null;
 
-// Mock data for games
 const mockGames = [
   {
     id: "game_001",
