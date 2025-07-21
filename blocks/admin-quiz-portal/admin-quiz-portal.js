@@ -655,14 +655,17 @@ function renderQuestionManagement() {
   renderQuestions();
   
   function addNewQuestion() {
+    const currentTime = new Date().toISOString();
+    const questionNumber = currentGame.questions.length + 1;
+    
     const newQuestion = {
-      id: `q${Date.now()}`,
-      type: 'multiple-choice',
-      text: '',
+      questionId: `q${questionNumber}`,
+      questionType: 'single-choice',
+      questionText: '',
       options: ['', ''],
-      correctAnswers: [],
+      correctAnswer: [],
       timeLimit: 30,
-      order: currentGame.questions.length + 1
+      createdAt: currentTime
     };
     
     currentGame.questions.push(newQuestion);
@@ -689,7 +692,7 @@ function renderQuestionManagement() {
   function createQuestionCard(question, index) {
     const card = document.createElement('div');
     card.className = 'question-card';
-    card.dataset.questionId = question.id;
+    card.dataset.questionId = question.questionId || question.id;
     
     // Question header
     const questionHeader = document.createElement('div');
@@ -702,7 +705,7 @@ function renderQuestionManagement() {
     
     const questionType = document.createElement('select');
     questionType.className = 'question-type-select';
-    questionType.value = question.type;
+    questionType.value = question.questionType || question.type;
     const typeOptions = [
       { value: 'multiple-choice', label: 'Multiple Choice' },
       { value: 'single-choice', label: 'Single Choice' },
@@ -716,10 +719,10 @@ function renderQuestionManagement() {
       questionType.appendChild(optionElement);
     });
     questionType.addEventListener('change', (e) => {
-      question.type = e.target.value;
-      if (question.type === 'true-false') {
-        question.options = ['True', 'False'];
-        question.correctAnswers = [];
+      question.questionType = e.target.value;
+      if (question.questionType === 'true-false') {
+        question.options = ['true', 'false'];
+        question.correctAnswer = [];
       }
       renderQuestions();
     });
@@ -728,7 +731,7 @@ function renderQuestionManagement() {
     const timeLimit = document.createElement('input');
     timeLimit.type = 'number';
     timeLimit.className = 'time-limit-input';
-    timeLimit.value = question.timeLimit;
+    timeLimit.value = question.timeLimit || 30;
     timeLimit.min = 5;
     timeLimit.max = 300;
     timeLimit.placeholder = 'Time (seconds)';
@@ -762,11 +765,12 @@ function renderQuestionManagement() {
     questionTextLabel.className = 'form-label';
     const questionTextInput = document.createElement('textarea');
     questionTextInput.className = 'form-textarea';
-    questionTextInput.value = question.text;
+    questionTextInput.value = question.questionText || question.text || '';
     questionTextInput.placeholder = 'Enter your question';
     questionTextInput.rows = 2;
     questionTextInput.addEventListener('input', (e) => {
-      question.text = e.target.value;
+      question.questionText = e.target.value;
+      question.text = e.target.value; // Keep backward compatibility
     });
     questionTextGroup.appendChild(questionTextLabel);
     questionTextGroup.appendChild(questionTextInput);
@@ -796,21 +800,23 @@ function renderQuestionManagement() {
         });
         
         const correctCheckbox = document.createElement('input');
-        correctCheckbox.type = question.type === 'multiple-choice' ? 'checkbox' : 'radio';
-        correctCheckbox.name = `correct_${question.id}`;
+        correctCheckbox.type = (question.questionType || question.type) === 'multiple-choice' ? 'checkbox' : 'radio';
+        correctCheckbox.name = `correct_${question.questionId || question.id}`;
         correctCheckbox.className = 'correct-answer-checkbox';
-        correctCheckbox.checked = question.correctAnswers.includes(optionIndex);
+        correctCheckbox.checked = (question.correctAnswer || question.correctAnswers || []).includes(optionIndex);
         correctCheckbox.addEventListener('change', (e) => {
+          const correctAnswers = question.correctAnswer || question.correctAnswers || [];
           if (e.target.checked) {
-            if (question.type === 'multiple-choice') {
-              question.correctAnswers.push(optionIndex);
+            if ((question.questionType || question.type) === 'multiple-choice') {
+              correctAnswers.push(optionIndex);
             } else {
+              question.correctAnswer = [optionIndex];
               question.correctAnswers = [optionIndex];
             }
           } else {
-            const index = question.correctAnswers.indexOf(optionIndex);
+            const index = correctAnswers.indexOf(optionIndex);
             if (index > -1) {
-              question.correctAnswers.splice(index, 1);
+              correctAnswers.splice(index, 1);
             }
           }
         });
@@ -822,9 +828,12 @@ function renderQuestionManagement() {
         removeBtn.addEventListener('click', () => {
           if (question.options.length > 2) {
             question.options.splice(optionIndex, 1);
-            question.correctAnswers = question.correctAnswers
+            const correctAnswers = question.correctAnswer || question.correctAnswers || [];
+            const updatedAnswers = correctAnswers
               .filter(answerIndex => answerIndex !== optionIndex)
               .map(answerIndex => answerIndex > optionIndex ? answerIndex - 1 : answerIndex);
+            question.correctAnswer = updatedAnswers;
+            question.correctAnswers = updatedAnswers;
             renderQuestions();
           }
         });
@@ -852,7 +861,7 @@ function renderQuestionManagement() {
     }
     
     // True/False options
-    if (question.type === 'true-false') {
+    if ((question.questionType || question.type) === 'true-false') {
       const trueFalseContainer = document.createElement('div');
       trueFalseContainer.className = 'true-false-container';
       
@@ -866,13 +875,14 @@ function renderQuestionManagement() {
       const trueCheckbox = document.createElement('input');
       trueCheckbox.type = 'checkbox';
       trueCheckbox.className = 'correct-answer-checkbox';
-      trueCheckbox.checked = question.correctAnswers.includes(0);
+      trueCheckbox.checked = (question.correctAnswer || question.correctAnswers || []).includes(0);
       trueCheckbox.addEventListener('change', (e) => {
         if (e.target.checked) {
-          question.correctAnswers.push(0);
+          (question.correctAnswer || question.correctAnswers || []).push(0);
         } else {
-          const index = question.correctAnswers.indexOf(0);
-          if (index > -1) question.correctAnswers.splice(index, 1);
+          const correctAnswers = question.correctAnswer || question.correctAnswers || [];
+          const index = correctAnswers.indexOf(0);
+          if (index > -1) correctAnswers.splice(index, 1);
         }
       });
       const trueLabel = document.createElement('label');
@@ -886,13 +896,14 @@ function renderQuestionManagement() {
       const falseCheckbox = document.createElement('input');
       falseCheckbox.type = 'checkbox';
       falseCheckbox.className = 'correct-answer-checkbox';
-      falseCheckbox.checked = question.correctAnswers.includes(1);
+      falseCheckbox.checked = (question.correctAnswer || question.correctAnswers || []).includes(1);
       falseCheckbox.addEventListener('change', (e) => {
         if (e.target.checked) {
-          question.correctAnswers.push(1);
+          (question.correctAnswer || question.correctAnswers || []).push(1);
         } else {
-          const index = question.correctAnswers.indexOf(1);
-          if (index > -1) question.correctAnswers.splice(index, 1);
+          const correctAnswers = question.correctAnswer || question.correctAnswers || [];
+          const index = correctAnswers.indexOf(1);
+          if (index > -1) correctAnswers.splice(index, 1);
         }
       });
       const falseLabel = document.createElement('label');
