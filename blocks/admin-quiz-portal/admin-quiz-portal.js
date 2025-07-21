@@ -744,6 +744,15 @@ function renderQuestionManagement() {
     deleteBtn.type = 'button';
     deleteBtn.textContent = 'Delete';
     deleteBtn.className = 'delete-question-btn';
+    deleteBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to delete this question?')) {
+        currentGame.questions.splice(index, 1);
+        currentGame.questions.forEach((q, i) => {
+          q.order = i + 1;
+        });
+        renderQuestions();
+      }
+    });
     questionHeader.appendChild(deleteBtn);
     
     card.appendChild(questionHeader);
