@@ -886,16 +886,21 @@ async function saveGame() {
 // Always build the complete game object from current state
 function buildCompleteGamePayload() {
   const formData = new FormData(mainContainer.querySelector('.game-form'));
+  const currentTime = new Date().toISOString();
+  
+  // For new games, generate a temporary ID; for existing games, use the current ID
+  const gameId = currentGame ? currentGame._id : generateRandomId();
   
   return {
-    _id: currentGame._id,  // Preserve original ID
+    _id: gameId,
     title: formData.get('title'),
     description: formData.get('description'),
     status: mainContainer.querySelector('.toggle-checkbox').checked ? 'published' : 'draft',
     startDate: formData.get('startDate'),
     endDate: formData.get('endDate'),
-    questions: currentGame.questions || [],  // Current questions state
-    updatedAt: new Date().toISOString()
+    questions: currentGame ? currentGame.questions : [],  // Current questions state (empty for new games)
+    createdAt: currentGame ? currentGame.createdAt : currentTime,  // Preserve original creation time
+    updatedAt: currentTime
   };
 }
 
