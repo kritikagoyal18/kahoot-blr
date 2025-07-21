@@ -48,9 +48,28 @@ filteredGames = [...games];
 
 // API Integration Hooks
 const API = {
-  async getGames() {
-    console.log('GET /games');
-    return games;
+  async getAllGames() {
+    console.log('GET /getAllGames');
+    try {
+      const response = await fetch('https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/getAllGames');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('API Response:', result);
+      
+      if (result.success && result.games) {
+        return result.games;
+      } else {
+        console.error('Invalid response format:', result);
+        return games; // fallback to local games
+      }
+    } catch (error) {
+      console.error('Error fetching games:', error);
+      return games; // fallback to local games
+    }
   },
   
   async createGame(gameData) {
@@ -121,7 +140,7 @@ function getStatusLabel(status) {
 }
 
 // Dashboard View
-function renderDashboard() {
+async function renderDashboard() {
   mainContainer.innerHTML = '';
   
   // Create main heading
@@ -155,9 +174,8 @@ function renderDashboard() {
   searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
     filteredGames = games.filter(game => 
-      game.title.toLowerCase().includes(searchTerm) ||
-      game.description.toLowerCase().includes(searchTerm) ||
-      game.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+      (game.name && game.name.toLowerCase().includes(searchTerm)) ||
+      (game.description && game.description.toLowerCase().includes(searchTerm))
     );
     renderGameCards();
   });
@@ -200,25 +218,36 @@ function renderDashboard() {
   cardsContainer.className = 'game-cards-container';
   mainContainer.appendChild(cardsContainer);
 
+  // Fetch games from API
+  try {
+    games = await API.getAllGames();
+    filteredGames = [...games];
+    console.log('Fetched games:', games);
+  } catch (error) {
+    console.error('Error fetching games:', error);
+    games = [...mockGames];
+    filteredGames = [...games];
+  }
+
   // Helper function to create a game card
   function createGameCard(game) {
     const card = document.createElement('div');
     card.className = 'game-card';
-    card.dataset.gameId = game.id;
+    card.dataset.gameId = game._id || game.id;
     
     // Card header
     const cardHeader = document.createElement('div');
     cardHeader.className = 'game-card-header';
     
     const title = document.createElement('h3');
-    title.textContent = game.title;
+    title.textContent = game.name || game.title || 'Untitled Game';
     title.className = 'game-card-title';
     cardHeader.appendChild(title);
     
     const status = document.createElement('span');
-    status.textContent = getStatusLabel(game.status);
+    status.textContent = getStatusLabel(game.status || 'draft');
     status.className = 'game-status';
-    status.style.backgroundColor = getStatusColor(game.status);
+    status.style.backgroundColor = getStatusColor(game.status || 'draft');
     cardHeader.appendChild(status);
     
     card.appendChild(cardHeader);
@@ -228,32 +257,23 @@ function renderDashboard() {
     cardContent.className = 'game-card-content';
     
     const description = document.createElement('p');
-    description.textContent = game.description;
+    description.textContent = game.description || 'No description available';
     description.className = 'game-description';
     cardContent.appendChild(description);
-    
-    const tags = document.createElement('div');
-    tags.className = 'game-tags';
-    game.tags.forEach(tag => {
-      const tagSpan = document.createElement('span');
-      tagSpan.textContent = tag;
-      tagSpan.className = 'tag';
-      tags.appendChild(tagSpan);
-    });
-    cardContent.appendChild(tags);
     
     const stats = document.createElement('div');
     stats.className = 'game-stats';
     
     const questionCount = document.createElement('span');
-    questionCount.textContent = `${game.questions.length} questions`;
+    questionCount.textContent = `${game.questions ? game.questions.length : 0} questions`;
     questionCount.className = 'question-count';
     stats.appendChild(questionCount);
     
-    const dateRange = document.createElement('span');
-    dateRange.textContent = `${new Date(game.startDate).toLocaleDateString()} - ${new Date(game.endDate).toLocaleDateString()}`;
-    dateRange.className = 'date-range';
-    stats.appendChild(dateRange);
+    const lastModified = document.createElement('span');
+    const modifiedDate = game.updatedAt || game.lastModified || game.createdAt;
+    lastModified.textContent = `Modified: ${new Date(modifiedDate).toLocaleDateString()}`;
+    lastModified.className = 'last-modified';
+    stats.appendChild(lastModified);
     
     cardContent.appendChild(stats);
     card.appendChild(cardContent);
@@ -276,11 +296,11 @@ function renderDashboard() {
     // Publish/Unpublish button
     const publishBtn = document.createElement('button');
     publishBtn.type = 'button';
-    publishBtn.textContent = game.status === 'published' ? 'Unpublish' : 'Publish';
-    publishBtn.className = game.status === 'published' ? 'unpublish-game-btn' : 'publish-game-btn';
+    publishBtn.textContent = (game.status || 'draft') === 'published' ? 'Unpublish' : 'Publish';
+    publishBtn.className = (game.status || 'draft') === 'published' ? 'unpublish-game-btn' : 'publish-game-btn';
     publishBtn.addEventListener('click', async () => {
       try {
-        await API.publishGame(game.id, game.status !== 'published');
+        await API.publishGame(game._id || game.id, (game.status || 'draft') !== 'published');
         renderDashboard();
       } catch (error) {
         console.error('Error publishing game:', error);
@@ -295,9 +315,9 @@ function renderDashboard() {
     deleteBtn.textContent = 'Delete';
     deleteBtn.className = 'delete-game-btn';
     deleteBtn.addEventListener('click', async () => {
-      if (confirm(`Are you sure you want to delete "${game.title}"?`)) {
+      if (confirm(`Are you sure you want to delete "${game.name || game.title}"?`)) {
         try {
-          await API.deleteGame(game.id);
+          await API.deleteGame(game._id || game.id);
           renderDashboard();
         } catch (error) {
           console.error('Error deleting game:', error);
@@ -313,7 +333,7 @@ function renderDashboard() {
     dashboardBtn.textContent = 'View Dashboard';
     dashboardBtn.className = 'view-dashboard-btn';
     dashboardBtn.addEventListener('click', () => {
-      console.log('View dashboard for game:', game.id);
+      console.log('View dashboard for game:', game._id || game.id);
     });
     cardActions.appendChild(dashboardBtn);
     
