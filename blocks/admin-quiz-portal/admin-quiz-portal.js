@@ -136,14 +136,13 @@ const API = {
     }
   },
   
-  async updateGame(id, gameData) {
-    console.log('PUT /game/:id', { id, gameData });
-    const index = games.findIndex(game => game.id === id);
-    if (index !== -1) {
-      games[index] = { ...games[index], ...gameData, lastModified: new Date().toISOString() };
-      return games[index];
-    }
-    throw new Error('Game not found');
+  async updateGame(gameId, completeGameData) {
+    // Always send complete game object
+    const response = await fetch(`https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/updateGame`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(completeGameData)
+    });
   },
   
   async deleteGame(id) {
@@ -869,28 +868,35 @@ function renderQuestionManagement() {
 
 // Save game function
 async function saveGame() {
-  const formData = new FormData(mainContainer.querySelector('.game-form'));
-  const gameData = {
-    title: formData.get('title'),
-    description: formData.get('description'),
-    tags: formData.get('tags').split(',').map(tag => tag.trim()).filter(tag => tag),
-    status: mainContainer.querySelector('.toggle-checkbox').checked ? 'published' : 'draft',
-    startDate: formData.get('startDate'),
-    endDate: formData.get('endDate'),
-    questions: currentGame ? currentGame.questions : []
-  };
+  const completeGameData = buildCompleteGamePayload();
   
   try {
     if (currentGame) {
-      await API.updateGame(currentGame.id, gameData);
+      await API.updateGame(currentGame._id, completeGameData);
     } else {
-      await API.addGame(gameData);
+      await API.addGame(completeGameData);
     }
     renderDashboard();
   } catch (error) {
     console.error('Error saving game:', error);
     alert('Error saving game');
   }
+}
+
+// Always build the complete game object from current state
+function buildCompleteGamePayload() {
+  const formData = new FormData(mainContainer.querySelector('.game-form'));
+  
+  return {
+    _id: currentGame._id,  // Preserve original ID
+    title: formData.get('title'),
+    description: formData.get('description'),
+    status: mainContainer.querySelector('.toggle-checkbox').checked ? 'published' : 'draft',
+    startDate: formData.get('startDate'),
+    endDate: formData.get('endDate'),
+    questions: currentGame.questions || [],  // Current questions state
+    updatedAt: new Date().toISOString()
+  };
 }
 
 
