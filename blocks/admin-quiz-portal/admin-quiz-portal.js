@@ -172,6 +172,39 @@ function generateRandomId() {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
+// Helper function to format date for HTML date input (YYYY-MM-DD)
+function formatDateForInput(dateString) {
+  if (!dateString) return '';
+  
+  console.log('Formatting date:', dateString, 'Type:', typeof dateString);
+  
+  try {
+    // If it's already in YYYY-MM-DD format, return as is
+    if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+    
+    // If it's a timestamp or other date format, convert it
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      console.error('Invalid date:', dateString);
+      return '';
+    }
+    
+    // Format as YYYY-MM-DD for HTML date input
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    
+    console.log('Formatted date:', formattedDate);
+    return formattedDate;
+  } catch (error) {
+    console.error('Error formatting date:', error, 'Input:', dateString);
+    return '';
+  }
+}
+
 function getStatusColor(status) {
   switch(status) {
     case 'published': return '#43e97b';
@@ -545,7 +578,14 @@ function renderGameEditor(mainContainer) {
   startDateInput.name = 'startDate';
   startDateInput.className = 'form-input';
   startDateInput.required = true;
-  startDateInput.value = currentGame && currentGame.startDate ? currentGame.startDate : '';
+  // Debug: Log the currentGame object to see available fields
+  if (currentGame) {
+    console.log('Current game data for form population:', currentGame);
+  }
+  
+  // Try multiple possible date field names from API response and format them
+  const startDate = currentGame && (currentGame.startDate || currentGame.start_date || currentGame.start);
+  startDateInput.value = formatDateForInput(startDate);
   startDateGroup.appendChild(startDateLabel);
   startDateGroup.appendChild(startDateInput);
   gameForm.appendChild(startDateGroup);
@@ -561,7 +601,9 @@ function renderGameEditor(mainContainer) {
   endDateInput.name = 'endDate';
   endDateInput.className = 'form-input';
   endDateInput.required = true;
-  endDateInput.value = currentGame && currentGame.endDate ? currentGame.endDate : '';
+  // Try multiple possible date field names from API response and format them
+  const endDate = currentGame && (currentGame.endDate || currentGame.end_date || currentGame.end);
+  endDateInput.value = formatDateForInput(endDate);
   endDateGroup.appendChild(endDateLabel);
   endDateGroup.appendChild(endDateInput);
   gameForm.appendChild(endDateGroup);
