@@ -788,7 +788,7 @@ function renderQuestionManagement() {
     card.appendChild(questionTextGroup);
     
     // Options (for multiple choice and single choice)
-    if (question.type === 'multiple-choice' || question.type === 'single-choice') {
+    if ((question.questionType || question.type) === 'multiple-choice' || (question.questionType || question.type) === 'single-choice') {
       const optionsContainer = document.createElement('div');
       optionsContainer.className = 'options-container';
       
