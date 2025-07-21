@@ -73,15 +73,67 @@ const API = {
   },
   
   async createGame(gameData) {
-    console.log('POST /game', gameData);
-    const newGame = {
-      ...gameData,
-      id: `game_${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      lastModified: new Date().toISOString()
+    console.log('POST /addGame', gameData);
+    
+    // Generate a random ID for the new game
+    const gameId = generateRandomId();
+    const currentTime = new Date().toISOString();
+    
+    // Format the data according to your API structure
+    const apiData = {
+      _id: gameId,
+      name: gameData.title || gameData.name || 'Untitled Game',
+      description: gameData.description || 'No description available',
+      status: gameData.status || 'draft',
+      startDate: gameData.startDate || new Date().toISOString().split('T')[0],
+      endDate: gameData.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      questions: [],
+      createdAt: currentTime,
+      updatedAt: currentTime
     };
-    games.push(newGame);
-    return newGame;
+    
+    try {
+      const response = await fetch('https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/createGame', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(apiData)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('Create Game API Response:', result);
+      
+      if (result.success) {
+        // Add to local games array for immediate UI update
+        const newGame = {
+          ...apiData,
+          id: gameId,
+          title: apiData.name,
+          lastModified: currentTime
+        };
+        games.push(newGame);
+        return newGame;
+      } else {
+        throw new Error(result.message || 'Failed to create game');
+      }
+    } catch (error) {
+      console.error('Error creating game:', error);
+      
+      // Fallback: create locally if API fails
+      const newGame = {
+        ...apiData,
+        id: gameId,
+        title: apiData.name,
+        lastModified: currentTime
+      };
+      games.push(newGame);
+      return newGame;
+    }
   },
   
   async updateGame(id, gameData) {
