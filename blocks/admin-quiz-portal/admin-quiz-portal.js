@@ -459,7 +459,7 @@ function renderGameEditor(mainContainer) {
   const gameIdInput = document.createElement('input');
   gameIdInput.type = 'text';
   gameIdInput.className = 'form-input';
-  gameIdInput.value = currentGame ? currentGame.id : `game_${generateRandomId()}`;
+  gameIdInput.value = currentGame ? currentGame._id : '';
   gameIdInput.readOnly = true;
   gameIdGroup.appendChild(gameIdLabel);
   gameIdGroup.appendChild(gameIdInput);
