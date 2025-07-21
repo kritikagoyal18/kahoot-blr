@@ -72,7 +72,7 @@ const API = {
     }
   },
   
-  async createGame(gameData) {
+  async addGame(gameData) {
     console.log('POST /addGame', gameData);
     
     // Generate a random ID for the new game
@@ -93,7 +93,7 @@ const API = {
     };
     
     try {
-      const response = await fetch('https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/createGame', {
+      const response = await fetch('https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/addGame', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -884,7 +884,7 @@ async function saveGame() {
     if (currentGame) {
       await API.updateGame(currentGame.id, gameData);
     } else {
-      await API.createGame(gameData);
+      await API.addGame(gameData);
     }
     renderDashboard();
   } catch (error) {
