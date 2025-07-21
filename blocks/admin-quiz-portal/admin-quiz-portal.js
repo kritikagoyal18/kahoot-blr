@@ -656,6 +656,12 @@ function renderQuestionManagement() {
   
   function addNewQuestion() {
     const currentTime = new Date().toISOString();
+    
+    // Ensure questions array exists
+    if (!currentGame.questions) {
+      currentGame.questions = [];
+    }
+    
     const questionNumber = currentGame.questions.length + 1;
     
     const newQuestion = {
@@ -674,6 +680,11 @@ function renderQuestionManagement() {
   
   function renderQuestions() {
     questionsContainer.innerHTML = '';
+    
+    // Ensure questions array exists
+    if (!currentGame.questions) {
+      currentGame.questions = [];
+    }
     
     if (currentGame.questions.length === 0) {
       const noQuestions = document.createElement('div');
@@ -952,7 +963,7 @@ function buildCompleteGamePayload() {
     status: mainContainer.querySelector('.toggle-checkbox').checked ? 'published' : 'draft',
     startDate: formData.get('startDate'),
     endDate: formData.get('endDate'),
-    questions: currentGame ? currentGame.questions : [],  // Current questions state (empty for new games)
+    questions: currentGame ? (currentGame.questions || []) : [],  // Current questions state (empty for new games)
     createdAt: currentGame ? currentGame.createdAt : currentTime,  // Preserve original creation time
     updatedAt: currentTime
   };
