@@ -651,6 +651,11 @@ function renderQuestionManagement() {
   
   mainContainer.appendChild(questionSection);
   
+  // Debug: Log the current game questions
+  if (currentGame && currentGame.questions) {
+    console.log('Loading existing questions:', currentGame.questions);
+  }
+  
   // Render existing questions
   renderQuestions();
   
@@ -685,6 +690,19 @@ function renderQuestionManagement() {
     if (!currentGame.questions) {
       currentGame.questions = [];
     }
+    
+    // Normalize question structure for compatibility
+    currentGame.questions = currentGame.questions.map(question => {
+      return {
+        questionId: question.questionId || question.id || `q${Date.now()}`,
+        questionType: question.questionType || question.type || 'single-choice',
+        questionText: question.questionText || question.text || '',
+        options: question.options || ['', ''],
+        correctAnswer: question.correctAnswer || question.correctAnswers || [],
+        timeLimit: question.timeLimit || 30,
+        createdAt: question.createdAt || new Date().toISOString()
+      };
+    });
     
     if (currentGame.questions.length === 0) {
       const noQuestions = document.createElement('div');
