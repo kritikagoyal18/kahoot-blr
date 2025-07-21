@@ -508,7 +508,7 @@ function renderGameEditor(mainContainer) {
   tagsInput.type = 'text';
   tagsInput.name = 'tags';
   tagsInput.className = 'form-input';
-  tagsInput.value = currentGame ? currentGame.tags.join(', ') : '';
+  tagsInput.value = currentGame && currentGame.tags ? currentGame.tags.join(', ') : '';
   tagsInput.placeholder = 'Enter tags separated by commas';
   tagsGroup.appendChild(tagsLabel);
   tagsGroup.appendChild(tagsInput);
@@ -545,7 +545,7 @@ function renderGameEditor(mainContainer) {
   startDateInput.name = 'startDate';
   startDateInput.className = 'form-input';
   startDateInput.required = true;
-  startDateInput.value = currentGame ? currentGame.startDate : '';
+  startDateInput.value = currentGame && currentGame.startDate ? currentGame.startDate : '';
   startDateGroup.appendChild(startDateLabel);
   startDateGroup.appendChild(startDateInput);
   gameForm.appendChild(startDateGroup);
@@ -561,7 +561,7 @@ function renderGameEditor(mainContainer) {
   endDateInput.name = 'endDate';
   endDateInput.className = 'form-input';
   endDateInput.required = true;
-  endDateInput.value = currentGame ? currentGame.endDate : '';
+  endDateInput.value = currentGame && currentGame.endDate ? currentGame.endDate : '';
   endDateGroup.appendChild(endDateLabel);
   endDateGroup.appendChild(endDateInput);
   gameForm.appendChild(endDateGroup);
@@ -895,6 +895,7 @@ function buildCompleteGamePayload() {
     _id: gameId,
     title: formData.get('title'),
     description: formData.get('description'),
+    tags: formData.get('tags').split(',').map(tag => tag.trim()).filter(tag => tag),
     status: mainContainer.querySelector('.toggle-checkbox').checked ? 'published' : 'draft',
     startDate: formData.get('startDate'),
     endDate: formData.get('endDate'),
