@@ -82,7 +82,7 @@ const API = {
     // Format the data according to your API structure
     const apiData = {
       _id: gameId,
-      name: gameData.title || gameData.name || 'Untitled Game',
+      title: gameData.title || 'Untitled Game',
       description: gameData.description || 'No description available',
       status: gameData.status || 'draft',
       startDate: gameData.startDate || new Date().toISOString().split('T')[0],
@@ -113,7 +113,7 @@ const API = {
         const newGame = {
           ...apiData,
           id: gameId,
-          title: apiData.name,
+          title: apiData.title,
           lastModified: currentTime
         };
         games.push(newGame);
@@ -128,7 +128,7 @@ const API = {
       const newGame = {
         ...apiData,
         id: gameId,
-        title: apiData.name,
+        title: apiData.title,
         lastModified: currentTime
       };
       games.push(newGame);
@@ -226,7 +226,7 @@ async function renderDashboard() {
   searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
     filteredGames = games.filter(game => 
-      (game.name && game.name.toLowerCase().includes(searchTerm)) ||
+      (game.title && game.title.toLowerCase().includes(searchTerm)) ||
       (game.description && game.description.toLowerCase().includes(searchTerm))
     );
     renderGameCards();
@@ -292,7 +292,7 @@ async function renderDashboard() {
     cardHeader.className = 'game-card-header';
     
     const title = document.createElement('h3');
-    title.textContent = game.name || game.title || 'Untitled Game';
+    title.textContent = game.title || 'Untitled Game';
     title.className = 'game-card-title';
     cardHeader.appendChild(title);
     
@@ -367,7 +367,7 @@ async function renderDashboard() {
     deleteBtn.textContent = 'Delete';
     deleteBtn.className = 'delete-game-btn';
     deleteBtn.addEventListener('click', async () => {
-      if (confirm(`Are you sure you want to delete "${game.name || game.title}"?`)) {
+      if (confirm(`Are you sure you want to delete "${game.title}"?`)) {
         try {
           await API.deleteGame(game._id || game.id);
           renderDashboard();
