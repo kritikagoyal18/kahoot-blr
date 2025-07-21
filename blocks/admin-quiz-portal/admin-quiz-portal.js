@@ -398,6 +398,17 @@ async function renderDashboard() {
     deleteBtn.type = 'button';
     deleteBtn.textContent = 'Delete';
     deleteBtn.className = 'delete-game-btn';
+    deleteBtn.addEventListener('click', async () => {
+      if (confirm(`Are you sure you want to delete "${game.title}"?`)) {
+        try {
+          await API.deleteGame(game._id || game.id);
+          renderDashboard();
+        } catch (error) {
+          console.error('Error deleting game:', error);
+          alert('Error deleting game');
+        }
+      }
+    });
     cardActions.appendChild(deleteBtn);
     
     // View Dashboard button
@@ -406,7 +417,7 @@ async function renderDashboard() {
     dashboardBtn.textContent = 'View Dashboard';
     dashboardBtn.className = 'view-dashboard-btn';
     dashboardBtn.addEventListener('click', () => {
-      console.log('View dashboard for game:', game._id);
+      console.log('View dashboard for game:', game._id || game.id);
     });
     cardActions.appendChild(dashboardBtn);
     
