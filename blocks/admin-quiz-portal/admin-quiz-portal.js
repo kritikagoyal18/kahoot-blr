@@ -525,6 +525,18 @@ async function renderDashboard() {
     status.style.backgroundColor = getStatusColor(game.status || 'draft');
     cardHeader.appendChild(status);
     
+    // Host Live button (next to status)
+    const hostLiveBtn = document.createElement('button');
+    hostLiveBtn.type = 'button';
+    hostLiveBtn.textContent = 'Host Live';
+    hostLiveBtn.className = 'host-live-btn';
+    hostLiveBtn.addEventListener('click', () => {
+      console.log('🎮 Host Live button clicked for game:', game._id || game.id);
+      // TODO: Implement host live functionality
+      alert(`Starting live session for "${game.title}"...`);
+    });
+    cardHeader.appendChild(hostLiveBtn);
+    
     card.appendChild(cardHeader);
     
     // Card content
@@ -594,18 +606,6 @@ async function renderDashboard() {
       }
     });
     cardActions.appendChild(publishBtn);
-    
-    // Host Live button
-    const hostLiveBtn = document.createElement('button');
-    hostLiveBtn.type = 'button';
-    hostLiveBtn.textContent = 'Host Live';
-    hostLiveBtn.className = 'host-live-btn';
-    hostLiveBtn.addEventListener('click', () => {
-      console.log('🎮 Host Live button clicked for game:', game._id || game.id);
-      // TODO: Implement host live functionality
-      alert(`Starting live session for "${game.title}"...`);
-    });
-    cardActions.appendChild(hostLiveBtn);
     
     // Delete button
     const deleteBtn = document.createElement('button');
