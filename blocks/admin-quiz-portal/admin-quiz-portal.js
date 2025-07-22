@@ -592,7 +592,9 @@ async function renderDashboard() {
     dashboardBtn.textContent = 'View Leaderboard';
     dashboardBtn.className = 'view-dashboard-btn';
     dashboardBtn.addEventListener('click', () => {
-      console.log('View dashboard for game:', game._id || game.id);
+      console.log('View leaderboard for game:', game._id || game.id);
+      currentGame = normalizeGameData(game);
+      renderLeaderboard(game._id || game.id);
     });
     cardActions.appendChild(dashboardBtn);
     
