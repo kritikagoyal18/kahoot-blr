@@ -274,14 +274,41 @@ const API = {
   },
   
   async publishGame(id, publish) {
-    console.log('PATCH /game/:id/publish', { id, publish });
-    const game = games.find(g => g.id === id);
-    if (game) {
-      game.status = publish ? 'published' : 'draft';
-      game.lastModified = new Date().toISOString();
-      return game;
+    console.log('PATCH /generateGamePin', { id, publish });
+    
+    try {
+      const response = await fetch('https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/generateGamePin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          _id: id
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('Generate Game Pin API Response:', result);
+      
+      if (result.success) {
+        // Update local game status
+        const game = games.find(g => g._id === id || g.id === id);
+        if (game) {
+          game.status = publish ? 'published' : 'draft';
+          game.lastModified = new Date().toISOString();
+        }
+        return result;
+      } else {
+        throw new Error(result.message || 'Failed to generate game pin');
+      }
+    } catch (error) {
+      console.error('Error generating game pin:', error);
+      throw error;
     }
-    throw new Error('Game not found');
   },
 
   
