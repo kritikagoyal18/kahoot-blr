@@ -1438,6 +1438,7 @@ function renderLeaderboardContent(container) {
   refreshButton.addEventListener('click', async () => {
     try {
       leaderboardData = await API.getGameLeaderboard(currentGame._id);
+      container.innerHTML = '';
       renderLeaderboardContent(container);
     } catch (error) {
       console.error('Error refreshing leaderboard:', error);
