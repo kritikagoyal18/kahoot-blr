@@ -916,8 +916,26 @@ function renderQuestionManagement() {
       return;
     }
     
-    // If validation passes, save the game
-    console.log('✅ Questions validation passed, saving game...');
+    // Create questions payload
+    const questionsPayload = {
+      questions: currentGame.questions.map(question => ({
+        questionId: question.questionId,
+        questionType: question.questionType,
+        questionText: question.questionText,
+        options: question.options,
+        correctAnswer: question.correctAnswer,
+        timeLimit: question.timeLimit
+      }))
+    };
+    
+    console.log('📤 Questions payload created:', questionsPayload);
+    console.log('✅ Questions validation passed, payload ready for new endpoint');
+    
+    // TODO: Call new endpoint with questionsPayload
+    // await API.updateQuestions(currentGame._id, questionsPayload);
+    
+    // For now, show success message
+    alert('Successfully prepared questions for submission!');
   }
   
   function renderQuestions() {
