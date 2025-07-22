@@ -646,6 +646,281 @@
   border: 2px dashed #dee2e6;
 }
 
+
+/* Leaderboard Styles */
+.leaderboard-container {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+/* Loading State */
+.leaderboard-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.leaderboard-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: #dc3545;
+}
+
+.retry-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+}
+
+.retry-btn:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+/* Game Info Section */
+.game-info-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+}
+
+.game-title {
+  margin: 0 0 15px 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.game-stats-summary {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Leaderboard Table */
+.leaderboard-table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.leaderboard-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 120px 80px;
+  gap: 20px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+}
+
+.leaderboard-body {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 120px 80px;
+  gap: 20px;
+  padding: 15px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  align-items: center;
+}
+
+.leaderboard-row:hover {
+  background: #f8f9fa;
+  transform: translateX(5px);
+}
+
+.leaderboard-row:last-child {
+  border-bottom: none;
+}
+
+/* Top 3 Players Special Styling */
+.leaderboard-row.rank-1 {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.leaderboard-row.rank-2 {
+  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.leaderboard-row.rank-3 {
+  background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%);
+  color: white;
+  font-weight: 600;
+}
+
+/* Player Rank */
+.player-rank {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.rank-number {
+  font-size: 1.2rem;
+  min-width: 30px;
+}
+
+.rank-medal {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+/* Player Info */
+.player-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+/* Player Score */
+.player-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.score-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.score-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Player Avatar */
+.player-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-emoji {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+/* No Data State */
+.no-leaderboard-data {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.no-data-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.no-leaderboard-data h4 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+.no-leaderboard-data p {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+/* Refresh Button */
+.refresh-leaderboard-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  display: block;
+}
+
+.refresh-leaderboard-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .game-cards-container {
@@ -654,6 +929,12 @@
   
   .game-form {
     grid-template-columns: 1fr;
+  }
+    
+  .leaderboard-header,
+  .leaderboard-row {
+    grid-template-columns: 60px 1fr 100px 60px;
+    gap: 15px;
   }
 }
 
@@ -706,6 +987,47 @@
     flex-direction: column;
     align-items: flex-start;
   }
+
+  
+  /* Leaderboard Mobile Styles */
+  .leaderboard-container {
+    padding: 20px;
+  }
+  
+  .game-stats-summary {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .leaderboard-header,
+  .leaderboard-row {
+    grid-template-columns: 50px 1fr 80px 50px;
+    gap: 10px;
+    padding: 12px 15px;
+  }
+  
+  .header-rank,
+  .header-avatar {
+    display: none;
+  }
+  
+  .player-rank,
+  .player-avatar {
+    display: none;
+  }
+  
+  .leaderboard-row {
+    grid-template-columns: 1fr 80px;
+  }
+  
+  .score-value {
+    font-size: 1.1rem;
+  }
+  
+  .player-name {
+    font-size: 0.9rem;
+  }
+
 }
 
 @media (max-width: 480px) {
@@ -723,6 +1045,28 @@
   
   .question-management-section {
     padding: 20px;
+  }
+
+  /* Leaderboard Mobile Styles */
+  .game-title {
+    font-size: 1.5rem;
+  }
+  
+  .stat-value {
+    font-size: 1.2rem;
+  }
+  
+  .leaderboard-header,
+  .leaderboard-row {
+    padding: 10px;
+  }
+  
+  .score-value {
+    font-size: 1rem;
+  }
+  
+  .player-name {
+    font-size: 0.85rem;
   }
 }
 
@@ -755,3 +1099,5 @@
 .game-card.success {
   animation: successPulse 0.5s ease-in-out;
 }
+
+
