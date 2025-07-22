@@ -942,7 +942,6 @@ function renderQuestionManagement() {
     questionTextInput.rows = 2;
     questionTextInput.addEventListener('input', (e) => {
       question.questionText = e.target.value;
-      question.text = e.target.value; // Keep backward compatibility
     });
     questionTextGroup.appendChild(questionTextLabel);
     questionTextGroup.appendChild(questionTextInput);
