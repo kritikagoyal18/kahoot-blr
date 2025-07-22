@@ -27,7 +27,6 @@ function normalizeGameData(game) {
     tags: game.tags || [],
     startDate: game.startDate || null,
     endDate: game.endDate || null,
-    createdAt: game.createdAt || new Date().toISOString(),
     updatedAt: game.updatedAt || game.lastModified || new Date().toISOString()
   };
   
@@ -57,9 +56,6 @@ function normalizeQuestionData(question) {
     
     // Ensure time limit exists
     timeLimit: question.timeLimit || 30,
-    
-    // Ensure creation time exists
-    createdAt: question.createdAt || new Date().toISOString()
   };
   
   console.log('✅ Normalized question data:', normalized);
@@ -1141,7 +1137,6 @@ function buildCompleteGamePayload() {
     startDate: formData.get('startDate'),
     endDate: formData.get('endDate'),
     questions: currentGame ? (currentGame.questions || []) : [],  // Current questions state (empty for new games)
-    createdAt: currentGame ? currentGame.createdAt : currentTime,  // Preserve original creation time
     updatedAt: currentTime
   };
   
