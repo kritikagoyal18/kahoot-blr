@@ -88,7 +88,7 @@ const mockGames = [
         type: "multiple-choice",
         text: "What is 2 + 2?",
         options: ["3", "4", "5", "6"],
-        correctAnswers: [1],
+        correctAnswer: [1],
         timeLimit: 30,
         order: 1
       }
@@ -978,7 +978,6 @@ function renderQuestionManagement() {
               correctAnswers.push(optionIndex);
             } else {
               question.correctAnswer = [optionIndex];
-              question.correctAnswers = [optionIndex];
             }
           } else {
             const index = correctAnswers.indexOf(optionIndex);
@@ -1000,7 +999,6 @@ function renderQuestionManagement() {
               .filter(answerIndex => answerIndex !== optionIndex)
               .map(answerIndex => answerIndex > optionIndex ? answerIndex - 1 : answerIndex);
             question.correctAnswer = updatedAnswers;
-            question.correctAnswers = updatedAnswers;
             renderQuestions();
           }
         });
