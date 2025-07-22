@@ -821,6 +821,16 @@ function renderQuestionManagement() {
   });
   questionSection.appendChild(addQuestionBtn);
   
+  // Add Questions button (plural)
+  const submitQuestionsBtn = document.createElement('button');
+  submitQuestionsBtn.type = 'button';
+  submitQuestionsBtn.textContent = 'Submit Questions';
+  submitQuestionsBtn.className = 'submit-questions-btn';
+  submitQuestionsBtn.addEventListener('click', () => {
+    submitQuestions();
+  });
+  questionSection.appendChild(submitQuestionsBtn);
+  
   // Questions container
   const questionsContainer = document.createElement('div');
   questionsContainer.className = 'questions-container';
@@ -883,6 +893,31 @@ function renderQuestionManagement() {
     console.log('Question added to currentGame.questions. Total questions:', currentGame.questions.length);
     
     renderQuestions();
+  }
+  
+  function submitQuestions() {
+    console.log('📤 submitQuestions() called');
+    
+    // Validate that there are questions to submit
+    if (!currentGame.questions || currentGame.questions.length === 0) {
+      alert('No questions to submit. Please add some questions first.');
+      return;
+    }
+    
+    // Validate that all questions have required fields
+    const invalidQuestions = currentGame.questions.filter(q => 
+      !q.questionText || q.questionText.trim() === '' ||
+      !q.options || q.options.length < 2 ||
+      q.options.some(opt => !opt || opt.trim() === '')
+    );
+    
+    if (invalidQuestions.length > 0) {
+      alert(`Please complete all questions. ${invalidQuestions.length} question(s) have missing or incomplete data.`);
+      return;
+    }
+    
+    // If validation passes, save the game
+    console.log('✅ Questions validation passed, saving game...');
   }
   
   function renderQuestions() {
