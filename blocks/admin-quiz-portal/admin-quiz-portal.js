@@ -137,12 +137,39 @@ const API = {
   },
   
   async updateGame(gameId, completeGameData) {
-    // Always send complete game object
-    const response = await fetch(`https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/updateGame`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(completeGameData)
-    });
+    console.log('PUT /updateGame', { gameId, completeGameData });
+    try {
+      const response = await fetch(`https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/updateGame`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(completeGameData)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('Update Game API Response:', result);
+      
+      if (result.success) {
+        // Update local games array for immediate UI update
+        const index = games.findIndex(game => game._id === gameId);
+        if (index !== -1) {
+          games[index] = {
+            ...games[index],
+            ...completeGameData,
+            lastModified: new Date().toISOString()
+          };
+        }
+        return games[index];
+      } else {
+        throw new Error(result.message || 'Failed to update game');
+      }
+    } catch (error) {
+      console.error('Error updating game:', error);
+      throw error; // Re-throw to be caught by saveGame
+    }
   },
   
   async deleteGame(id) {
@@ -306,7 +333,8 @@ async function renderDashboard() {
   try {
     games = await API.getAllGames();
     filteredGames = [...games];
-    console.log('Fetched games:', games);
+    console.log('Games loaded from API:', games);
+    console.log('Game questions count:', games.map(g => ({id: g._id, questions: g.questions?.length || 0})));
   } catch (error) {
     console.error('Error fetching games:', error);
     games = [...mockGames];
