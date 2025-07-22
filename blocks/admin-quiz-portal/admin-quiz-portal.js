@@ -895,7 +895,7 @@ function renderQuestionManagement() {
     renderQuestions();
   }
   
-  function submitQuestions() {
+  async function submitQuestions() {
     console.log('📤 submitQuestions() called');
     
     // Validate that there are questions to submit
@@ -930,13 +930,35 @@ function renderQuestionManagement() {
     };
     
     console.log('📤 Questions payload created:', questionsPayload);
-    console.log('✅ Questions validation passed, payload ready for new endpoint');
+    console.log('✅ Questions validation passed, making API call...');
     
-    // TODO: Call new endpoint with questionsPayload
-    // await API.updateQuestions(currentGame._id, questionsPayload);
-    
-    // For now, show success message
-    alert('Successfully prepared questions for submission!');
+    try {
+      const response = await fetch('https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/addQuestion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(questionsPayload)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('📤 Add Question API Response:', result);
+      
+      if (result.success) {
+        alert(`Successfully submitted ${questionsPayload.questions.length} questions!`);
+        // Optionally refresh the dashboard or update the current game
+        // renderDashboard();
+      } else {
+        alert(`Error submitting questions: ${result.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('❌ Error submitting questions:', error);
+      alert(`Error submitting questions: ${error.message}`);
+    }
   }
   
   function renderQuestions() {
