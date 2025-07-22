@@ -850,7 +850,7 @@ function renderQuestionManagement() {
   if (currentGame && currentGame.questions) {
     console.log('Loading existing questions:', currentGame.questions);
     currentGame.questions.forEach((q, index) => {
-      console.log(`  Question ${index + 1}:`, {
+      console.log(`Question ${index + 1}:`, {
         id: q.questionId || q.id,
         type: q.questionType || q.type,
         text: q.questionText || q.text,
