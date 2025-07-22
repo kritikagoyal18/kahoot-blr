@@ -1272,7 +1272,6 @@ function buildCompleteGamePayload() {
     status: mainContainer.querySelector('.toggle-checkbox').checked ? 'published' : 'draft',
     startDate: formData.get('startDate'),
     endDate: formData.get('endDate'),
-    questions: currentGame ? (currentGame.questions || []) : [],  // Current questions state (empty for new games)
     updatedAt: currentTime
   };
   
