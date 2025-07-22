@@ -122,54 +122,24 @@ filteredGames = [...games];
 const API = {
   async getAllGames() {
     console.log('GET /getAllGames');
-    
-    // Hardcoded response for testing
-    const hardcodedResponse = {
-      "success": true,
-      "games": [
-        {
-          "_id": "3t7rgh6ah2o57l86foeqi3",
-          "title": "title1",
-          "description": "desc1",
-          "tags": [
-            "eds"
-          ],
-          "questions": [
-            {
-              "questionId": "q1",
-              "questionType": "single-choice",
-              "questionText": "asdadasd",
-              "options": [
-                "asdasd",
-                "asdasd"
-              ],
-              "correctAnswer": [],
-              "timeLimit": 30,
-              "createdAt": "2025-07-22T10:57:43.013Z",
-              "text": "asdadasd"
-            }
-          ],
-          "publishStatus": false,
-          "startDate": "2025-07-22T00:00:00.000Z",
-          "endDate": "2025-07-30T00:00:00.000Z",
-          "createdAt": "2025-07-21T12:26:02.642Z",
-          "updatedAt": "2025-07-22T10:57:58.636Z"
-        }
-      ],
-      "count": 1
-    };
-    
-    console.log('🔧 Using hardcoded API response for testing');
-    console.log('📊 Hardcoded Response:', hardcodedResponse);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    if (hardcodedResponse.success && hardcodedResponse.games) {
-      console.log('✅ Hardcoded response is valid, returning games');
-      return hardcodedResponse.games;
-    } else {
-      console.error('❌ Invalid hardcoded response format:', hardcodedResponse);
+    try {
+      const response = await fetch('https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/getAllGames');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('API Response:', result);
+      
+      if (result.success && result.games) {
+        return result.games;
+      } else {
+        console.error('Invalid response format:', result);
+        return games; // fallback to local games
+      }
+    } catch (error) {
+      console.error('Error fetching games:', error);
       return games; // fallback to local games
     }
   },
