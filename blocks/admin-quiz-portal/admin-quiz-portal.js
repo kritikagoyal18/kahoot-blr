@@ -4,6 +4,7 @@ let currentGame = null;
 let games = [];
 let filteredGames = [];
 let mainContainer = null;
+let leaderboardData = []; // New state for leaderboard data
 
 // ===== STEP 1: DATA NORMALIZATION & LOGGING =====
 
@@ -139,7 +140,29 @@ const API = {
       return games; // fallback to local games
     }
   },
-  
+  async getGame(gameId) {
+    console.log('GET /getGame', gameId);
+    try {
+      const response = await fetch(`https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/getGameByID?id=${gameId}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('Get Game API Response:', result);
+      
+      if (result.success && result.game) {
+        return result.game;
+      } else {
+        console.error('Invalid game response format:', result);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching game:', error);
+      return null;
+    }
+  },  
   async addGame(gameData) {
     console.log('POST /addGame', gameData);
     
@@ -259,6 +282,43 @@ const API = {
       return game;
     }
     throw new Error('Game not found');
+  },
+
+  
+  async getGameLeaderboard(gameId) {
+    console.log('GET /getGameLeaderboard', gameId);
+    try {
+      // First, get the specific game data to access the users array
+      const response = await fetch(`https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/getGameByID?id=${gameId}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('Game API Response:', result);
+      
+      if (result.success && result.game && result.game.users) {
+        // Transform the users data to match our expected format
+        const leaderboardData = result.game.users.map(user => ({
+          name: user.userName,
+          avatar: user.avatar || '👤', // Default avatar if empty
+          score: parseInt(user.score) || 0,
+          rank: parseInt(user.rank) || 0
+        }));
+        
+        console.log('Transformed leaderboard data:', leaderboardData);
+        return leaderboardData;
+      } else {
+        console.error('Invalid game response format or no users data:', result);
+        // Return mock data for development/testing
+        return generateMockLeaderboardData();
+      }
+    } catch (error) {
+      console.error('Error fetching game leaderboard:', error);
+      // Return mock data for development/testing
+      return generateMockLeaderboardData();
+    }
   }
 };
 
@@ -529,7 +589,7 @@ async function renderDashboard() {
     // View Dashboard button
     const dashboardBtn = document.createElement('button');
     dashboardBtn.type = 'button';
-    dashboardBtn.textContent = 'View Dashboard';
+    dashboardBtn.textContent = 'View Leaderboard';
     dashboardBtn.className = 'view-dashboard-btn';
     dashboardBtn.addEventListener('click', () => {
       console.log('View dashboard for game:', game._id || game.id);
@@ -1140,6 +1200,202 @@ function buildCompleteGamePayload() {
   
   console.log('📤 Complete payload for API:', payload);
   return payload;
+}
+
+
+// Mock leaderboard data generator for development/testing
+function generateMockLeaderboardData() {
+  const mockPlayers = [
+    { name: 'Preetish', avatar: '👨‍💼', score: 1020, rank: 1 },
+    { name: 'Pankaj', avatar: '👨‍💻', score: 880, rank: 2 },
+    { name: 'Alice Johnson', avatar: '👩‍🎓', score: 820, rank: 3 },
+    { name: 'Bob Smith', avatar: '👨‍🏫', score: 750, rank: 4 },
+    { name: 'Carol Davis', avatar: '👩‍🔬', score: 680, rank: 5 },
+    { name: 'David Wilson', avatar: '👨‍🎨', score: 620, rank: 6 },
+    { name: 'Emma Brown', avatar: '👩‍⚕️', score: 580, rank: 7 },
+    { name: 'Frank Miller', avatar: '👨‍🚀', score: 540, rank: 8 },
+    { name: 'Grace Lee', avatar: '👩‍🎤', score: 500, rank: 9 },
+    { name: 'Henry Taylor', avatar: '👨‍🍳', score: 460, rank: 10 }
+  ];
+  
+  return mockPlayers;
+}
+
+// Leaderboard View
+async function renderLeaderboard(gameId) {
+  console.log('🎯 Rendering leaderboard for game:', gameId);
+  currentView = 'leaderboard';
+  
+  mainContainer.innerHTML = '';
+  
+  // Create header with back button
+  const header = document.createElement('div');
+  header.className = 'editor-header';
+  
+  const backButton = document.createElement('button');
+  backButton.type = 'button';
+  backButton.textContent = '← Back to Dashboard';
+  backButton.className = 'back-btn';
+  backButton.addEventListener('click', renderDashboard);
+  header.appendChild(backButton);
+  
+  const title = document.createElement('h2');
+  title.textContent = 'Game Leaderboard';
+  title.className = 'editor-title';
+  header.appendChild(title);
+  
+  mainContainer.appendChild(header);
+
+  // Create leaderboard container
+  const leaderboardContainer = document.createElement('div');
+  leaderboardContainer.className = 'leaderboard-container';
+  
+  // Loading state
+  const loadingDiv = document.createElement('div');
+  loadingDiv.className = 'leaderboard-loading';
+  loadingDiv.innerHTML = `
+    <div class="loading-spinner"></div>
+    <p>Loading leaderboard data...</p>
+  `;
+  leaderboardContainer.appendChild(loadingDiv);
+  mainContainer.appendChild(leaderboardContainer);
+
+  try {
+    // Fetch leaderboard data
+    console.log('🔄 Fetching leaderboard data...');
+    leaderboardData = await API.getGameLeaderboard(gameId);
+    console.log('✅ Leaderboard data loaded:', leaderboardData);
+    
+    // Clear loading and render leaderboard
+    leaderboardContainer.innerHTML = '';
+    renderLeaderboardContent(leaderboardContainer);
+    
+  } catch (error) {
+    console.error('❌ Error loading leaderboard:', error);
+    leaderboardContainer.innerHTML = `
+      <div class="leaderboard-error">
+        <p>Error loading leaderboard data. Please try again.</p>
+        <button class="retry-btn" onclick="renderLeaderboard('${gameId}')">Retry</button>
+      </div>
+    `;
+  }
+}
+
+// Render leaderboard content
+function renderLeaderboardContent(container) {
+  // Game info section
+  const gameInfo = document.createElement('div');
+  gameInfo.className = 'game-info-section';
+  
+  const gameTitle = document.createElement('h3');
+  gameTitle.textContent = currentGame ? currentGame.title : 'Game Leaderboard';
+  gameTitle.className = 'game-title';
+  gameInfo.appendChild(gameTitle);
+  
+  const gameStats = document.createElement('div');
+  gameStats.className = 'game-stats-summary';
+  gameStats.innerHTML = `
+    <div class="stat-item">
+      <span class="stat-label">Total Players:</span>
+      <span class="stat-value">${leaderboardData.length}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Highest Score:</span>
+      <span class="stat-value">${leaderboardData.length > 0 ? Math.max(...leaderboardData.map(p => p.score)) : 0}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Average Score:</span>
+      <span class="stat-value">${leaderboardData.length > 0 ? Math.round(leaderboardData.reduce((sum, p) => sum + p.score, 0) / leaderboardData.length) : 0}</span>
+    </div>
+  `;
+  gameInfo.appendChild(gameStats);
+  container.appendChild(gameInfo);
+
+  // Leaderboard table
+  const leaderboardTable = document.createElement('div');
+  leaderboardTable.className = 'leaderboard-table';
+  
+  // Table header
+  const tableHeader = document.createElement('div');
+  tableHeader.className = 'leaderboard-header';
+  tableHeader.innerHTML = `
+    <div class="header-rank">Rank</div>
+    <div class="header-player">Player</div>
+    <div class="header-score">Score</div>
+    <div class="header-avatar">Avatar</div>
+  `;
+  leaderboardTable.appendChild(tableHeader);
+  
+  // Table body
+  const tableBody = document.createElement('div');
+  tableBody.className = 'leaderboard-body';
+  
+  if (leaderboardData.length === 0) {
+    const noData = document.createElement('div');
+    noData.className = 'no-leaderboard-data';
+    noData.innerHTML = `
+      <div class="no-data-icon">🏆</div>
+      <h4>No Leaderboard Data</h4>
+      <p>No players have completed this game yet.</p>
+    `;
+    tableBody.appendChild(noData);
+  } else {
+    // Sort players by score (highest first)
+    const sortedPlayers = [...leaderboardData].sort((a, b) => b.score - a.score);
+    
+    sortedPlayers.forEach((player, index) => {
+      const playerRow = createPlayerRow(player, index + 1);
+      tableBody.appendChild(playerRow);
+    });
+  }
+  
+  leaderboardTable.appendChild(tableBody);
+  container.appendChild(leaderboardTable);
+  
+  // Refresh button
+  const refreshButton = document.createElement('button');
+  refreshButton.type = 'button';
+  refreshButton.textContent = '🔄 Refresh Leaderboard';
+  refreshButton.className = 'refresh-leaderboard-btn';
+  refreshButton.addEventListener('click', async () => {
+    try {
+      leaderboardData = await API.getGameLeaderboard(currentGame._id);
+      renderLeaderboardContent(container);
+    } catch (error) {
+      console.error('Error refreshing leaderboard:', error);
+    }
+  });
+  container.appendChild(refreshButton);
+}
+
+// Create player row for leaderboard
+function createPlayerRow(player, rank) {
+  const row = document.createElement('div');
+  row.className = 'leaderboard-row';
+  
+  // Add special styling for top 3 players
+  if (rank <= 3) {
+    row.classList.add(`rank-${rank}`);
+  }
+  
+  row.innerHTML = `
+    <div class="player-rank">
+      <span class="rank-number">${rank}</span>
+      ${rank <= 3 ? `<span class="rank-medal">${rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉'}</span>` : ''}
+    </div>
+    <div class="player-info">
+      <div class="player-name">${player.name}</div>
+    </div>
+    <div class="player-score">
+      <span class="score-value">${player.score}</span>
+      <span class="score-label">points</span>
+    </div>
+    <div class="player-avatar">
+      <span class="avatar-emoji">${player.avatar}</span>
+    </div>
+  `;
+  
+  return row;
 }
 
 
