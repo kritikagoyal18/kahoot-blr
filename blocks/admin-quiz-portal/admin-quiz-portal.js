@@ -5,6 +5,78 @@ let games = [];
 let filteredGames = [];
 let mainContainer = null;
 
+// ===== STEP 1: DATA NORMALIZATION & LOGGING =====
+
+// Helper function to normalize game data from API to UI format
+function normalizeGameData(game) {
+  console.log('🔧 Normalizing game data:', game);
+  
+  const normalized = {
+    ...game,
+    // Handle status field mapping (publishStatus -> status)
+    status: game.publishStatus === true ? 'published' : 
+            game.publishStatus === false ? 'draft' : 
+            game.status || 'draft',
+    
+    // Ensure questions array exists and normalize each question
+    questions: (game.questions || []).map(question => normalizeQuestionData(question)),
+    
+    // Ensure all required fields exist
+    title: game.title || game.name || 'Untitled Game',
+    description: game.description || 'No description available',
+    tags: game.tags || [],
+    startDate: game.startDate || null,
+    endDate: game.endDate || null,
+    createdAt: game.createdAt || new Date().toISOString(),
+    updatedAt: game.updatedAt || game.lastModified || new Date().toISOString()
+  };
+  
+  console.log('✅ Normalized game data:', normalized);
+  return normalized;
+}
+
+// Helper function to normalize question data
+function normalizeQuestionData(question) {
+  console.log('🔧 Normalizing question data:', question);
+  
+  const normalized = {
+    // Handle different field names for question ID
+    questionId: question.questionId || question.id || `q${Date.now()}`,
+    
+    // Handle different field names for question type
+    questionType: question.questionType || question.type || 'single-choice',
+    
+    // Handle different field names for question text
+    questionText: question.questionText || question.text || '',
+    
+    // Ensure options array exists
+    options: question.options || ['', ''],
+    
+    // Handle different field names for correct answers
+    correctAnswer: question.correctAnswer || question.correctAnswers || [],
+    
+    // Ensure time limit exists
+    timeLimit: question.timeLimit || 30,
+    
+    // Ensure creation time exists
+    createdAt: question.createdAt || new Date().toISOString()
+  };
+  
+  console.log('✅ Normalized question data:', normalized);
+  return normalized;
+}
+
+// Enhanced logging function for debugging
+function logGameData(context, data) {
+  console.log(`📊 [${context}] Game Data:`, {
+    gameCount: Array.isArray(data) ? data.length : 1,
+    sampleGame: Array.isArray(data) ? data[0] : data,
+    questionsCount: Array.isArray(data) ? 
+      data.map(g => ({ id: g._id, questions: g.questions?.length || 0 })) :
+      { id: data._id, questions: data.questions?.length || 0 }
+  });
+}
+
 const mockGames = [
   {
     id: "game_001",
@@ -203,8 +275,6 @@ function generateRandomId() {
 function formatDateForInput(dateString) {
   if (!dateString) return '';
   
-  console.log('Formatting date:', dateString, 'Type:', typeof dateString);
-  
   try {
     // If it's already in YYYY-MM-DD format, return as is
     if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
@@ -224,7 +294,6 @@ function formatDateForInput(dateString) {
     const day = String(date.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
     
-    console.log('Formatted date:', formattedDate);
     return formattedDate;
   } catch (error) {
     console.error('Error formatting date:', error, 'Input:', dateString);
@@ -331,14 +400,25 @@ async function renderDashboard() {
 
   // Fetch games from API
   try {
-    games = await API.getAllGames();
+    console.log('🔄 Fetching games from API...');
+    const apiGames = await API.getAllGames();
+    
+    // Normalize all games from API
+    console.log('🔧 Normalizing games from API...');
+    games = apiGames.map(normalizeGameData);
     filteredGames = [...games];
-    console.log('Games loaded from API:', games);
-    console.log('Game questions count:', games.map(g => ({id: g._id, questions: g.questions?.length || 0})));
+    
+    // Enhanced logging
+    logGameData('API Response', apiGames);
+    logGameData('Normalized Games', games);
+    
+    console.log('✅ Games loaded and normalized successfully');
   } catch (error) {
-    console.error('Error fetching games:', error);
+    console.error('❌ Error fetching games:', error);
+    console.log('🔄 Falling back to mock games...');
     games = [...mockGames];
     filteredGames = [...games];
+    logGameData('Mock Games', games);
   }
 
   // Helper function to create a game card
@@ -400,7 +480,18 @@ async function renderDashboard() {
     editBtn.textContent = 'Edit';
     editBtn.className = 'edit-game-btn';
     editBtn.addEventListener('click', () => {
-      currentGame = game;
+      console.log('🖱️ Edit button clicked for game:', game);
+      console.log('📋 Game details:', {
+        id: game._id,
+        title: game.title,
+        questionsCount: game.questions?.length || 0,
+        questions: game.questions
+      });
+      
+      // Normalize the game before setting as current
+      currentGame = normalizeGameData(game);
+      console.log('✅ Current game set (normalized):', currentGame);
+      
       renderGameEditor(mainContainer);
     });
     cardActions.appendChild(editBtn);
@@ -679,23 +770,45 @@ function renderQuestionManagement() {
   
   mainContainer.appendChild(questionSection);
   
-  // Debug: Log the current game questions
+  // Enhanced logging for question management
+  console.log('🔍 renderQuestionManagement() called');
+  console.log('📋 Current game state:', {
+    hasCurrentGame: !!currentGame,
+    gameId: currentGame?._id,
+    gameTitle: currentGame?.title,
+    questionsCount: currentGame?.questions?.length || 0
+  });
+  
   if (currentGame && currentGame.questions) {
-    console.log('Loading existing questions:', currentGame.questions);
+    console.log('📝 Loading existing questions:', currentGame.questions);
+    currentGame.questions.forEach((q, index) => {
+      console.log(`  Question ${index + 1}:`, {
+        id: q.questionId || q.id,
+        type: q.questionType || q.type,
+        text: q.questionText || q.text,
+        optionsCount: q.options?.length || 0,
+        correctAnswers: q.correctAnswer || q.correctAnswers
+      });
+    });
+  } else {
+    console.log('📝 No existing questions found');
   }
   
   // Render existing questions
   renderQuestions();
   
   function addNewQuestion() {
+    console.log('➕ addNewQuestion() called');
     const currentTime = new Date().toISOString();
     
     // Ensure questions array exists
     if (!currentGame.questions) {
+      console.log('⚠️ No questions array found, creating empty array');
       currentGame.questions = [];
     }
     
     const questionNumber = currentGame.questions.length + 1;
+    console.log(`📝 Creating question number: ${questionNumber}`);
     
     const newQuestion = {
       questionId: `q${questionNumber}`,
@@ -707,30 +820,32 @@ function renderQuestionManagement() {
       createdAt: currentTime
     };
     
+    console.log('🆕 New question created:', newQuestion);
     currentGame.questions.push(newQuestion);
+    console.log('✅ Question added to currentGame.questions. Total questions:', currentGame.questions.length);
+    
     renderQuestions();
   }
   
   function renderQuestions() {
+    console.log('🔄 renderQuestions() called');
     questionsContainer.innerHTML = '';
     
     // Ensure questions array exists
     if (!currentGame.questions) {
+      console.log('⚠️ No questions array found, creating empty array');
       currentGame.questions = [];
     }
     
-    // Normalize question structure for compatibility
+    console.log('📝 Before normalization - questions:', currentGame.questions);
+    
+    // Normalize question structure for compatibility using our helper function
     currentGame.questions = currentGame.questions.map(question => {
-      return {
-        questionId: question.questionId || question.id || `q${Date.now()}`,
-        questionType: question.questionType || question.type || 'single-choice',
-        questionText: question.questionText || question.text || '',
-        options: question.options || ['', ''],
-        correctAnswer: question.correctAnswer || question.correctAnswers || [],
-        timeLimit: question.timeLimit || 30,
-        createdAt: question.createdAt || new Date().toISOString()
-      };
+      console.log('🔧 Normalizing question in renderQuestions:', question);
+      return normalizeQuestionData(question);
     });
+    
+    console.log('✅ After normalization - questions:', currentGame.questions);
     
     if (currentGame.questions.length === 0) {
       const noQuestions = document.createElement('div');
@@ -995,13 +1110,30 @@ async function saveGame() {
 
 // Always build the complete game object from current state
 function buildCompleteGamePayload() {
+  console.log('🔧 buildCompleteGamePayload() called');
   const formData = new FormData(mainContainer.querySelector('.game-form'));
   const currentTime = new Date().toISOString();
   
   // For new games, generate a temporary ID; for existing games, use the current ID
   const gameId = currentGame ? currentGame._id : generateRandomId();
   
-  return {
+  console.log('📋 Form data collected:', {
+    title: formData.get('title'),
+    description: formData.get('description'),
+    tags: formData.get('tags'),
+    status: mainContainer.querySelector('.toggle-checkbox').checked ? 'published' : 'draft',
+    startDate: formData.get('startDate'),
+    endDate: formData.get('endDate')
+  });
+  
+  console.log('📝 Current game state:', {
+    hasCurrentGame: !!currentGame,
+    gameId: gameId,
+    questionsCount: currentGame?.questions?.length || 0,
+    questions: currentGame?.questions || []
+  });
+  
+  const payload = {
     _id: gameId,
     title: formData.get('title'),
     description: formData.get('description'),
@@ -1013,6 +1145,9 @@ function buildCompleteGamePayload() {
     createdAt: currentGame ? currentGame.createdAt : currentTime,  // Preserve original creation time
     updatedAt: currentTime
   };
+  
+  console.log('📤 Complete payload for API:', payload);
+  return payload;
 }
 
 
