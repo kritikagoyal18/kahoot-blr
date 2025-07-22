@@ -143,7 +143,7 @@ const API = {
   async getGame(gameId) {
     console.log('GET /getGame', gameId);
     try {
-      const response = await fetch(`https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/getGameByID?id=${gameId}`);
+      const response = await fetch("https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/getGameByID?id="+gameId);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
