@@ -838,7 +838,7 @@ function renderQuestionManagement() {
   });
   
   if (currentGame && currentGame.questions) {
-    console.log('📝 Loading existing questions:', currentGame.questions);
+    console.log('Loading existing questions:', currentGame.questions);
     currentGame.questions.forEach((q, index) => {
       console.log(`  Question ${index + 1}:`, {
         id: q.questionId || q.id,
@@ -849,7 +849,7 @@ function renderQuestionManagement() {
       });
     });
   } else {
-    console.log('📝 No existing questions found');
+    console.log('No existing questions found');
   }
   
   // Render existing questions
@@ -861,12 +861,12 @@ function renderQuestionManagement() {
     
     // Ensure questions array exists
     if (!currentGame.questions) {
-      console.log('⚠️ No questions array found, creating empty array');
+      console.log('No questions array found, creating empty array');
       currentGame.questions = [];
     }
     
     const questionNumber = currentGame.questions.length + 1;
-    console.log(`📝 Creating question number: ${questionNumber}`);
+    console.log(`Creating question number: ${questionNumber}`);
     
     const newQuestion = {
       questionId: `q${questionNumber}`,
@@ -878,9 +878,9 @@ function renderQuestionManagement() {
       createdAt: currentTime
     };
     
-    console.log('🆕 New question created:', newQuestion);
+    console.log('New question created:', newQuestion);
     currentGame.questions.push(newQuestion);
-    console.log('✅ Question added to currentGame.questions. Total questions:', currentGame.questions.length);
+    console.log('Question added to currentGame.questions. Total questions:', currentGame.questions.length);
     
     renderQuestions();
   }
