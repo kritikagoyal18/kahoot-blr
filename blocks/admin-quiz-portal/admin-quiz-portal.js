@@ -122,7 +122,7 @@ const API = {
       const response = await fetch('https://275323-116limecat-stage.adobeio-static.net/api/v1/web/KahootMongoApp/getAllGames');
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        console.log("getAllGames call failing");
       }
       
       const result = await response.json();
