@@ -73,9 +73,33 @@ function focusNavSection() {
  * @param {Boolean} expanded Whether the element should be expanded or collapsed
  */
 function toggleAllNavSections(sections, expanded = false) {
-  sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li').forEach((section) => {
-    section.setAttribute('aria-expanded', expanded);
-  });
+  // Check if sections parameter exists and is a valid DOM element
+  if (!sections || !sections.querySelectorAll) {
+    console.warn('toggleAllNavSections: Invalid sections parameter provided');
+    return;
+  }
+  
+  try {
+    // Use optional chaining and null check for the querySelectorAll result
+    const navSections = sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li');
+    
+    // Check if any elements were found
+    if (!navSections || navSections.length === 0) {
+      console.warn('toggleAllNavSections: No navigation sections found');
+      return;
+    }
+    
+    // Safely iterate over the NodeList
+    navSections.forEach((section) => {
+      if (section && section.setAttribute) {
+        section.setAttribute('aria-expanded', expanded);
+      }
+    });
+    
+    console.log(`toggleAllNavSections: Successfully toggled ${navSections.length} navigation sections to ${expanded ? 'expanded' : 'collapsed'}`);
+  } catch (error) {
+    console.error('toggleAllNavSections: Error occurred while toggling navigation sections:', error);
+  }
 }
 
 
