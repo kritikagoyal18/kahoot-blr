@@ -1456,8 +1456,7 @@ function createPlayerRow(player, rank) {
     row.classList.add(`rank-${rank}`);
   }
   
-  row.innerHTML = `
-    <div class="player-rank">
+  row.innerHTML = `<div class="player-rank">
       <span class="rank-number">${rank}</span>
       ${rank <= 3 ? `<span class="rank-medal">${rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉'}</span>` : ''}
     </div>
@@ -1470,8 +1469,7 @@ function createPlayerRow(player, rank) {
     </div>
     <div class="player-avatar">
       <span class="avatar-emoji">${player.avatar}</span>
-    </div>
-  `;
+    </div>`;
   
   return row;
 }
