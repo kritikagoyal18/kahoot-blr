@@ -918,6 +918,7 @@ function renderQuestionManagement() {
     
     // Create questions payload
     const questionsPayload = {
+      gameId: currentGame._id,
       questions: currentGame.questions.map(question => ({
         questionId: question.questionId,
         questionType: question.questionType,
