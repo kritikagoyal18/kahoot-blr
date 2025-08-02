@@ -445,6 +445,44 @@ async function renderDashboard() {
   });
   headerSection.appendChild(soundToggleBtn);
   
+  // Background audio toggle button
+  const bgAudioToggleBtn = document.createElement('button');
+  bgAudioToggleBtn.type = 'button';
+  bgAudioToggleBtn.textContent = '🎵 BGM On';
+  bgAudioToggleBtn.className = 'bg-audio-toggle-btn';
+  bgAudioToggleBtn.addEventListener('click', () => {
+    if (window.audioManager) {
+      const isEnabled = window.audioManager.toggleBackgroundAudio();
+      bgAudioToggleBtn.textContent = isEnabled ? '🎵 BGM On' : '🔇 BGM Off';
+    }
+  });
+  headerSection.appendChild(bgAudioToggleBtn);
+  
+  // Background volume slider container
+  const volumeContainer = document.createElement('div');
+  volumeContainer.className = 'volume-container';
+  
+  const volumeLabel = document.createElement('label');
+  volumeLabel.textContent = '🎚️ BGM Vol:';
+  volumeLabel.className = 'volume-label';
+  volumeContainer.appendChild(volumeLabel);
+  
+  const volumeSlider = document.createElement('input');
+  volumeSlider.type = 'range';
+  volumeSlider.min = '0';
+  volumeSlider.max = '100';
+  volumeSlider.value = '10'; // Default 10% volume
+  volumeSlider.className = 'volume-slider';
+  volumeSlider.addEventListener('input', (e) => {
+    if (window.audioManager) {
+      const volume = e.target.value / 100; // Convert to 0-1 range
+      window.audioManager.setBackgroundVolume(volume);
+    }
+  });
+  volumeContainer.appendChild(volumeSlider);
+  
+  headerSection.appendChild(volumeContainer);
+  
   // Search input
   const searchContainer = document.createElement('div');
   searchContainer.className = 'search-container';
