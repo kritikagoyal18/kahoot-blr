@@ -26,6 +26,46 @@ import {
   PATH_PREFIX,
 } from './utils.js';
 
+/**
+ * Initialize and play fun Mario-style audio on page load
+ */
+function initFunAudio() {
+  try {
+    // Create audio context for generating Mario-style sound
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Mario-style coin sound (high-pitched beep)
+    function playMarioCoinSound() {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Set frequency and type for Mario coin sound
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.1);
+      oscillator.type = 'square';
+      
+      // Create envelope for the sound
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    }
+    
+    // Play the sound after a short delay to ensure page is loaded
+    setTimeout(() => {
+      playMarioCoinSound();
+      console.log('🎵 Mario coin sound played!');
+    }, 500);
+    
+  } catch (error) {
+    console.log('Audio not supported or blocked by browser:', error);
+  }
+}
 
 /**
  * Moves all the attributes from a given elmenet to another given element.
@@ -235,6 +275,7 @@ async function loadEager(doc) {
   } catch (e) {
     // do nothing
   }
+  initFunAudio();
 }
 
 /**
