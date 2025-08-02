@@ -9,9 +9,8 @@ class AudioManager {
     this.isInitialized = false;
     this.soundEnabled = true;
     this.backgroundAudioEnabled = false;
+    this.backgroundOscillators = [];
     this.backgroundGainNode = null;
-    this.audioBuffers = {};
-    this.backgroundAudio = null;
   }
 
   /**
@@ -22,7 +21,6 @@ class AudioManager {
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       this.isInitialized = true;
       console.log('🎵 Audio Manager initialized successfully!');
-      this.loadAudioFiles();
     } catch (error) {
       console.log('Audio not supported or blocked by browser:', error);
       this.soundEnabled = false;
@@ -30,138 +28,18 @@ class AudioManager {
   }
 
   /**
-   * Load Mario game audio files
-   */
-  async loadAudioFiles() {
-    // Using reliable Mario game audio sources
-    const audioFiles = {
-      coin: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav', // Coin-like sound
-      powerup: 'https://www.soundjay.com/misc/sounds/fail-buzzer-02.wav', // Power-up like sound
-      jump: 'https://www.soundjay.com/misc/sounds/fail-buzzer-01.wav', // Jump-like sound
-      gameOver: 'https://www.soundjay.com/misc/sounds/fail-buzzer-03.wav', // Game over sound
-      victory: 'https://www.soundjay.com/misc/sounds/bell-ringing-04.wav', // Victory sound
-      background: 'https://www.soundjay.com/misc/sounds/bell-ringing-03.wav' // Background music placeholder
-    };
-
-    // Alternative Mario-style audio sources (if primary sources fail)
-    const fallbackAudioFiles = {
-      coin: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
-      powerup: 'https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3',
-      jump: 'https://assets.mixkit.co/active_storage/sfx/2569/2569-preview.mp3',
-      gameOver: 'https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3',
-      victory: 'https://assets.mixkit.co/active_storage/sfx/2573/2573-preview.mp3',
-      background: 'https://assets.mixkit.co/active_storage/sfx/2574/2574-preview.mp3'
-    };
-
-    try {
-      for (const [name, url] of Object.entries(audioFiles)) {
-        try {
-          console.log(`🎵 Loading ${name} audio from: ${url}`);
-          const response = await fetch(url);
-          
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-          
-          const arrayBuffer = await response.arrayBuffer();
-          const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
-          this.audioBuffers[name] = audioBuffer;
-          console.log(`✅ Successfully loaded ${name} audio file`);
-        } catch (error) {
-          console.log(`❌ Failed to load ${name} from primary source:`, error);
-          
-          // Try fallback source
-          try {
-            const fallbackUrl = fallbackAudioFiles[name];
-            console.log(`🔄 Trying fallback source for ${name}: ${fallbackUrl}`);
-            const fallbackResponse = await fetch(fallbackUrl);
-            
-            if (fallbackResponse.ok) {
-              const fallbackArrayBuffer = await fallbackResponse.arrayBuffer();
-              const fallbackAudioBuffer = await this.audioContext.decodeAudioData(fallbackArrayBuffer);
-              this.audioBuffers[name] = fallbackAudioBuffer;
-              console.log(`✅ Successfully loaded ${name} from fallback source`);
-            } else {
-              throw new Error(`Fallback HTTP ${fallbackResponse.status}`);
-            }
-          } catch (fallbackError) {
-            console.log(`❌ Failed to load ${name} from fallback source:`, fallbackError);
-            console.log(`🎵 Will use generated sound for ${name}`);
-          }
-        }
-      }
-      
-      console.log(`🎵 Audio loading complete. Loaded ${Object.keys(this.audioBuffers).length} audio files.`);
-    } catch (error) {
-      console.log('❌ Critical error loading audio files, falling back to generated sounds:', error);
-    }
-  }
-
-  /**
-   * Play audio from buffer
-   */
-  playAudioFromBuffer(bufferName, volume = 0.3) {
-    if (!this.soundEnabled || !this.audioContext || !this.audioBuffers[bufferName]) return;
-    
-    const source = this.audioContext.createBufferSource();
-    const gainNode = this.audioContext.createGain();
-    
-    source.buffer = this.audioBuffers[bufferName];
-    source.connect(gainNode);
-    gainNode.connect(this.audioContext.destination);
-    
-    gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime);
-    
-    source.start(0);
-  }
-
-  /**
-   * Start continuous background audio (Mario game music)
+   * Start continuous background audio (Mario-style ambient music)
    */
   startBackgroundAudio() {
     if (!this.soundEnabled || !this.audioContext || this.backgroundAudioEnabled) return;
     
     this.backgroundAudioEnabled = true;
-    console.log('🎵 Starting Mario background music...');
+    console.log('🎵 Starting background audio...');
     
-    if (this.audioBuffers.background) {
-      // Use actual Mario background music
-      this.playBackgroundMusic();
-    } else {
-      // Fallback to generated music
-      this.playGeneratedBackgroundMusic();
-    }
-  }
-
-  /**
-   * Play actual Mario background music
-   */
-  playBackgroundMusic() {
-    const source = this.audioContext.createBufferSource();
-    this.backgroundGainNode = this.audioContext.createGain();
-    
-    source.buffer = this.audioBuffers.background;
-    source.connect(this.backgroundGainNode);
-    this.backgroundGainNode.connect(this.audioContext.destination);
-    
-    // Set lower volume for background music
-    this.backgroundGainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
-    
-    // Loop the music
-    source.loop = true;
-    source.start(0);
-    
-    this.backgroundAudio = source;
-  }
-
-  /**
-   * Fallback to generated background music
-   */
-  playGeneratedBackgroundMusic() {
     // Create master gain node for background audio
     this.backgroundGainNode = this.audioContext.createGain();
     this.backgroundGainNode.connect(this.audioContext.destination);
-    this.backgroundGainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+    this.backgroundGainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime); // Lower volume for background
     
     // Mario-style background music using multiple oscillators
     this.createBackgroundMelody();
@@ -171,7 +49,7 @@ class AudioManager {
   }
 
   /**
-   * Create Mario-style background melody (fallback)
+   * Create Mario-style background melody
    */
   createBackgroundMelody() {
     const startTime = this.audioContext.currentTime;
@@ -208,7 +86,7 @@ class AudioManager {
         gainNode.connect(this.backgroundGainNode);
         
         oscillator.frequency.setValueAtTime(note.freq, startTime + (index * noteDuration));
-        oscillator.type = 'triangle';
+        oscillator.type = 'triangle'; // Softer sound for background
         
         // Create envelope for each note
         gainNode.gain.setValueAtTime(0, startTime + (index * noteDuration));
@@ -217,6 +95,8 @@ class AudioManager {
         
         oscillator.start(startTime + (index * noteDuration));
         oscillator.stop(startTime + (index * noteDuration) + noteDuration);
+        
+        this.backgroundOscillators.push(oscillator);
       }
     });
     
@@ -225,7 +105,7 @@ class AudioManager {
   }
 
   /**
-   * Create background bass line (fallback)
+   * Create background bass line
    */
   createBackgroundBass(startTime, duration) {
     const bassNotes = [131, 147, 165, 175]; // Lower octave
@@ -239,7 +119,7 @@ class AudioManager {
       gainNode.connect(this.backgroundGainNode);
       
       oscillator.frequency.setValueAtTime(freq, startTime + (index * bassDuration));
-      oscillator.type = 'sine';
+      oscillator.type = 'sine'; // Smooth bass
       
       // Softer bass envelope
       gainNode.gain.setValueAtTime(0, startTime + (index * bassDuration));
@@ -248,11 +128,13 @@ class AudioManager {
       
       oscillator.start(startTime + (index * bassDuration));
       oscillator.stop(startTime + (index * bassDuration) + bassDuration);
+      
+      this.backgroundOscillators.push(oscillator);
     });
   }
 
   /**
-   * Loop the background audio (fallback)
+   * Loop the background audio
    */
   loopBackgroundAudio() {
     if (!this.backgroundAudioEnabled) return;
@@ -260,6 +142,7 @@ class AudioManager {
     // Schedule the next loop
     setTimeout(() => {
       if (this.backgroundAudioEnabled) {
+        this.backgroundOscillators = []; // Clear old oscillators
         this.createBackgroundMelody();
         this.loopBackgroundAudio();
       }
@@ -272,10 +155,15 @@ class AudioManager {
   stopBackgroundAudio() {
     this.backgroundAudioEnabled = false;
     
-    if (this.backgroundAudio) {
-      this.backgroundAudio.stop();
-      this.backgroundAudio = null;
-    }
+    // Stop all background oscillators
+    this.backgroundOscillators.forEach(oscillator => {
+      try {
+        oscillator.stop();
+      } catch (e) {
+        // Oscillator might already be stopped
+      }
+    });
+    this.backgroundOscillators = [];
     
     if (this.backgroundGainNode) {
       this.backgroundGainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
@@ -319,21 +207,9 @@ class AudioManager {
   }
 
   /**
-   * Play Mario coin sound
+   * Play Mario coin sound (high-pitched ascending beep)
    */
   playCoinSound() {
-    if (this.audioBuffers.coin) {
-      this.playAudioFromBuffer('coin', 0.4);
-    } else {
-      // Fallback to generated sound
-      this.playGeneratedCoinSound();
-    }
-  }
-
-  /**
-   * Play generated coin sound (fallback)
-   */
-  playGeneratedCoinSound() {
     if (!this.soundEnabled || !this.audioContext) return;
     
     const oscillator = this.audioContext.createOscillator();
@@ -342,6 +218,7 @@ class AudioManager {
     oscillator.connect(gainNode);
     gainNode.connect(this.audioContext.destination);
     
+    // Coin sound: ascending beep
     oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
     oscillator.frequency.setValueAtTime(1200, this.audioContext.currentTime + 0.1);
     oscillator.type = 'square';
@@ -355,21 +232,9 @@ class AudioManager {
   }
 
   /**
-   * Play Mario power-up sound
+   * Play Mario power-up sound (ascending arpeggio)
    */
   playPowerUpSound() {
-    if (this.audioBuffers.powerup) {
-      this.playAudioFromBuffer('powerup', 0.4);
-    } else {
-      // Fallback to generated sound
-      this.playGeneratedPowerUpSound();
-    }
-  }
-
-  /**
-   * Play generated power-up sound (fallback)
-   */
-  playGeneratedPowerUpSound() {
     if (!this.soundEnabled || !this.audioContext) return;
     
     const oscillator = this.audioContext.createOscillator();
@@ -378,6 +243,7 @@ class AudioManager {
     oscillator.connect(gainNode);
     gainNode.connect(this.audioContext.destination);
     
+    // Power-up sound: ascending arpeggio
     oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
     oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime + 0.1);
     oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime + 0.2);
@@ -392,21 +258,9 @@ class AudioManager {
   }
 
   /**
-   * Play Mario jump sound
+   * Play Mario jump sound (quick ascending beep)
    */
   playJumpSound() {
-    if (this.audioBuffers.jump) {
-      this.playAudioFromBuffer('jump', 0.4);
-    } else {
-      // Fallback to generated sound
-      this.playGeneratedJumpSound();
-    }
-  }
-
-  /**
-   * Play generated jump sound (fallback)
-   */
-  playGeneratedJumpSound() {
     if (!this.soundEnabled || !this.audioContext) return;
     
     const oscillator = this.audioContext.createOscillator();
@@ -415,6 +269,7 @@ class AudioManager {
     oscillator.connect(gainNode);
     gainNode.connect(this.audioContext.destination);
     
+    // Jump sound: quick ascending beep
     oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime);
     oscillator.frequency.setValueAtTime(1000, this.audioContext.currentTime + 0.05);
     oscillator.type = 'triangle';
@@ -428,21 +283,9 @@ class AudioManager {
   }
 
   /**
-   * Play Mario game over sound
+   * Play Mario game over sound (descending tone)
    */
   playGameOverSound() {
-    if (this.audioBuffers.gameOver) {
-      this.playAudioFromBuffer('gameOver', 0.4);
-    } else {
-      // Fallback to generated sound
-      this.playGeneratedGameOverSound();
-    }
-  }
-
-  /**
-   * Play generated game over sound (fallback)
-   */
-  playGeneratedGameOverSound() {
     if (!this.soundEnabled || !this.audioContext) return;
     
     const oscillator = this.audioContext.createOscillator();
@@ -451,6 +294,7 @@ class AudioManager {
     oscillator.connect(gainNode);
     gainNode.connect(this.audioContext.destination);
     
+    // Game over sound: descending tone
     oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
     oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime + 0.3);
     oscillator.type = 'sawtooth';
@@ -464,21 +308,9 @@ class AudioManager {
   }
 
   /**
-   * Play Mario victory sound
+   * Play Mario victory sound (ascending fanfare)
    */
   playVictorySound() {
-    if (this.audioBuffers.victory) {
-      this.playAudioFromBuffer('victory', 0.4);
-    } else {
-      // Fallback to generated sound
-      this.playGeneratedVictorySound();
-    }
-  }
-
-  /**
-   * Play generated victory sound (fallback)
-   */
-  playGeneratedVictorySound() {
     if (!this.soundEnabled || !this.audioContext) return;
     
     // Play a sequence of ascending notes
@@ -505,29 +337,13 @@ class AudioManager {
   }
 
   /**
-   * Play Mario level complete sound
+   * Play Mario level complete sound (ascending arpeggio with ending)
    */
   playLevelCompleteSound() {
-    if (this.audioBuffers.powerup) {
-      // Use power-up sound for level complete
-      this.playAudioFromBuffer('powerup', 0.4);
-      setTimeout(() => {
-        this.playAudioFromBuffer('coin', 0.4);
-      }, 500);
-    } else {
-      // Fallback to generated sound
-      this.playGeneratedLevelCompleteSound();
-    }
-  }
-
-  /**
-   * Play generated level complete sound (fallback)
-   */
-  playGeneratedLevelCompleteSound() {
     if (!this.soundEnabled || !this.audioContext) return;
     
     // First play power-up sound
-    this.playGeneratedPowerUpSound();
+    this.playPowerUpSound();
     
     // Then play a completion sound
     setTimeout(() => {

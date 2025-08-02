@@ -1,12 +1,12 @@
-# 🎵 Mario Game Audio Features
+# 🎵 Mario-Style Audio Features
 
-This Kahoot-like platform now includes authentic Mario game audio effects that enhance the user experience!
+This Kahoot-like platform now includes fun Mario-style audio effects that enhance the user experience!
 
 ## 🎮 Audio Features
 
 ### **Automatic Page Load Audio**
-- **Welcome Sequence**: When the page loads, you'll hear authentic Mario coin and power-up sounds
-- **Background Music**: Continuous Mario game background music starts playing after 2 seconds
+- **Welcome Sequence**: When the page loads, you'll hear a Mario coin sound followed by a power-up sound
+- **Background Music**: Continuous Mario-style ambient music starts playing after 2 seconds
 - **Location**: `scripts/audio-utils.js` and `head.html`
 
 ### **Interactive Sound Effects**
@@ -38,51 +38,39 @@ This Kahoot-like platform now includes authentic Mario game audio effects that e
 ### **AudioManager Class** (`scripts/audio-utils.js`)
 
 #### **Background Audio**
-1. **`startBackgroundAudio()`** - Start continuous Mario game background music
+1. **`startBackgroundAudio()`** - Start continuous Mario-style background music
 2. **`stopBackgroundAudio()`** - Stop background music
 3. **`toggleBackgroundAudio()`** - Toggle background music on/off
-4. **`playBackgroundMusic()`** - Play actual Mario background music file
-5. **`playGeneratedBackgroundMusic()`** - Fallback to generated Mario-style music
+4. **`createBackgroundMelody()`** - Generate Mario-style melody loop
+5. **`createBackgroundBass()`** - Add bass line to background music
 6. **`setBackgroundVolume(volume)`** - Set background music volume (0.0-1.0)
 7. **`getBackgroundVolume()`** - Get current background music volume
 
 #### **Sound Effects**
-8. **`playCoinSound()`** - Authentic Mario coin collection sound
-9. **`playPowerUpSound()`** - Authentic Mario power-up sound
-10. **`playJumpSound()`** - Authentic Mario jump sound
-11. **`playGameOverSound()`** - Authentic Mario game over sound
-12. **`playVictorySound()`** - Authentic Mario victory fanfare
-13. **`playLevelCompleteSound()`** - Power-up + coin sequence
-14. **`playWelcomeSequence()`** - Coin + power-up sequence
-15. **`playAudioFromBuffer()`** - Play audio from loaded buffer
-16. **`loadAudioFiles()`** - Load Mario game audio files
+6. **`playCoinSound()`** - High-pitched ascending beep (Mario coin)
+7. **`playPowerUpSound()`** - Ascending arpeggio (Mario power-up)
+8. **`playJumpSound()`** - Quick ascending beep (Mario jump)
+9. **`playGameOverSound()`** - Descending tone (Mario game over)
+10. **`playVictorySound()`** - Ascending fanfare (Mario victory)
+11. **`playLevelCompleteSound()`** - Power-up + completion sound
+12. **`playWelcomeSequence()`** - Coin + power-up sequence
 
 ## 🔧 Technical Implementation
 
 ### **Audio Context**
 - Uses Web Audio API for high-quality sound generation
-- Loads authentic Mario game audio files from external sources
 - Fallback support for older browsers
 - Graceful degradation if audio is not supported
 
-### **Audio File Loading**
-- **Primary Sources**: Reliable audio hosting services
-- **Fallback Sources**: Alternative audio providers
-- **Generated Fallbacks**: Programmatically created Mario-style sounds
-- **Error Handling**: Comprehensive error handling with multiple fallback options
-
 ### **Background Music**
-- **Authentic Mario Music**: Uses actual Mario game background music files
-- **Automatic Looping**: Seamless loop of Mario game tracks
+- **8-second loop**: Continuous Mario-style melody with bass line
 - **Low volume**: Background music plays at 10% volume to not interfere with UI
-- **Fallback System**: Generated Mario-style music if audio files can't be loaded
+- **Triangle waveform**: Softer, more ambient sound for background
 - **Automatic start**: Begins playing 2 seconds after page load
 - **Separate control**: Can be toggled independently from sound effects
 
 ### **Sound Generation**
-- **Authentic Audio Files**: Loads real Mario game audio from external sources
-- **Generated Fallbacks**: Uses oscillators to create Mario-style sounds when audio files unavailable
-- **Multiple Waveforms**: Square, sine, triangle, sawtooth for generated sounds
+- **Oscillators**: Generate different waveforms (square, sine, triangle, sawtooth)
 - **Frequency Modulation**: Creates authentic Mario-style sounds
 - **Gain Envelopes**: Smooth volume control for natural sound
 
@@ -155,21 +143,14 @@ if (window.audioManager) {
 
 ## 🎵 Future Enhancements
 
-- [x] Volume control slider
-- [x] Authentic Mario game audio files
+- [ ] Volume control slider
+- [ ] Custom sound themes
 - [ ] Multiple background music tracks
 - [ ] Sound effect customization
 - [ ] Accessibility options for hearing-impaired users
 - [ ] Background music fade in/out effects
 - [ ] Music tempo adjustment based on user activity
-- [ ] Local audio file support
-- [ ] Audio file caching for better performance
-- [ ] Custom audio playlist management
 
 ---
 
-**Note**: The system now uses authentic Mario game audio files with comprehensive fallback options. If external audio files can't be loaded, it automatically falls back to programmatically generated Mario-style sounds, ensuring the audio experience always works! 🎮✨
-
-## 📁 Audio File Management
-
-See `audio/README.md` for detailed instructions on adding local Mario game audio files and legal considerations. 
+**Note**: All sounds are generated programmatically using the Web Audio API, ensuring fast loading and no external dependencies! 🎮✨ 
