@@ -293,11 +293,6 @@ export default function decorate(block) {
 
   // Add question button handler
   addButton.addEventListener('click', () => {
-    // Play jump sound for adding new question
-    if (window.audioManager) {
-      window.audioManager.playJumpSound();
-    }
-    
     questions.push({
       text: '',
       type: 'single-choice',
@@ -384,11 +379,6 @@ export default function decorate(block) {
       users: [],
       questions: formattedQuestions
     };
-    
-    // Play level complete sound for successful submission
-    if (window.audioManager) {
-      window.audioManager.playLevelCompleteSound();
-    }
     
     // Log the JSON to console
     console.log('Questions submitted:', jsonData);

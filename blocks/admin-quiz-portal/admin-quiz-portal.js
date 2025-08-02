@@ -422,28 +422,10 @@ async function renderDashboard() {
   createButton.textContent = 'Create New Game';
   createButton.className = 'create-game-btn';
   createButton.addEventListener('click', () => {
-    // Play coin sound for create new game action
-    if (window.audioManager) {
-      window.audioManager.playCoinSound();
-    }
-    
     currentGame = null;
     renderGameEditor(mainContainer);
   });
   headerSection.appendChild(createButton);
-  
-  // Sound toggle button
-  const soundToggleBtn = document.createElement('button');
-  soundToggleBtn.type = 'button';
-  soundToggleBtn.textContent = '🔊 Sound On';
-  soundToggleBtn.className = 'sound-toggle-btn';
-  soundToggleBtn.addEventListener('click', () => {
-    if (window.audioManager) {
-      const isEnabled = window.audioManager.toggleSound();
-      soundToggleBtn.textContent = isEnabled ? '🔊 Sound On' : '🔇 Sound Off';
-    }
-  });
-  headerSection.appendChild(soundToggleBtn);
   
   // Search input
   const searchContainer = document.createElement('div');
@@ -550,12 +532,6 @@ async function renderDashboard() {
     hostLiveBtn.className = 'host-live-btn';
     hostLiveBtn.addEventListener('click', () => {
       console.log('🎮 Host Live button clicked for game:', game._id || game.id);
-      
-      // Play victory sound for host live action
-      if (window.audioManager) {
-        window.audioManager.playVictorySound();
-      }
-      
       // TODO: Implement host live functionality
       alert(`Starting live session for "${game.title}"...`);
     });
@@ -607,11 +583,6 @@ async function renderDashboard() {
         questions: game.questions
       });
       
-      // Play jump sound for edit action
-      if (window.audioManager) {
-        window.audioManager.playJumpSound();
-      }
-      
       // Normalize the game before setting as current
       currentGame = normalizeGameData(game);
       console.log('✅ Current game set (normalized):', currentGame);
@@ -627,11 +598,6 @@ async function renderDashboard() {
     publishBtn.className = (game.status || 'draft') === 'published' ? 'unpublish-game-btn' : 'publish-game-btn';
     publishBtn.addEventListener('click', async () => {
       try {
-        // Play power-up sound for publish action
-        if (window.audioManager) {
-          window.audioManager.playPowerUpSound();
-        }
-        
         await API.publishGame(game._id || game.id, (game.status || 'draft') !== 'published');
         renderDashboard();
       } catch (error) {
@@ -649,11 +615,6 @@ async function renderDashboard() {
     deleteBtn.addEventListener('click', async () => {
       if (confirm(`Are you sure you want to delete "${game.title}"?`)) {
         try {
-          // Play game over sound for delete action
-          if (window.audioManager) {
-            window.audioManager.playGameOverSound();
-          }
-          
           await API.deleteGame(game._id || game.id);
           renderDashboard();
         } catch (error) {
@@ -945,12 +906,6 @@ function renderQuestionManagement() {
   
   function addNewQuestion() {
     console.log('➕ addNewQuestion() called');
-    
-    // Play jump sound for adding new question
-    if (window.audioManager) {
-      window.audioManager.playJumpSound();
-    }
-    
     const currentTime = new Date().toISOString();
     
     // Ensure questions array exists
@@ -1033,11 +988,6 @@ function renderQuestionManagement() {
       console.log('📤 Add Question API Response:', result);
       
       if (result.success) {
-        // Play level complete sound for successful submission
-        if (window.audioManager) {
-          window.audioManager.playLevelCompleteSound();
-        }
-        
         alert(`Successfully submitted ${questionsPayload.questions.length} questions!`);
         // Optionally refresh the dashboard or update the current game
         // renderDashboard();
